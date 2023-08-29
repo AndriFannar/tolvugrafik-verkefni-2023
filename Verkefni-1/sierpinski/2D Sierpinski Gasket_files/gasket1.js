@@ -3,6 +3,7 @@
 var gl;
 var points;
 
+// Breyta fjölda punkta sem teiknaðir eru í 100.000
 var NumPoints = 100000;
 
 window.onload = function init()

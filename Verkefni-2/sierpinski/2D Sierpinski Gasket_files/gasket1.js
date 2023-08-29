@@ -3,6 +3,7 @@
 var gl;
 var points;
 
+// Fækka fjölda punkta í 100.
 var NumPoints = 100;
 
 window.onload = function init()
@@ -25,11 +26,8 @@ window.onload = function init()
     ];
 
     // Specify a starting point p for our iterations
-    // p must lie inside any set of three vertices
-
-    var u = add( vertices[0], vertices[1] ); // (-1 + 0  ,  -1 + 1)  = (-1 , 0) 
-    var v = add( vertices[0], vertices[2] ); // (-1 + 1  ,  -1 + -1) = (0 , -2)
-    var p = vec2(100, 100); /*scale( 0.25,  add( u, v ) );*/      // (-1 + 0  ,  0 + -2)  = (-1 , -2) , 0.25 * (-1 , -2)
+    // Setja upphafspunktinn í (100, 100).
+    var p = vec2(100, 100); /*scale( 0.25,  add( u, v ) );*/
 
     // And, add our initial point into our array of points
 

@@ -14,6 +14,7 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
+    // Röðun breytt svo hægt sé að teikna rétthyrninginn með TRIANGLE_FAN
     var vertices = new Float32Array([ 0.5,  0.25, 
                                      -0.5,  0.25, 
                                      -0.5, -0.25,
@@ -47,5 +48,6 @@ window.onload = function init()
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
+    // Breytt úr TRIANGLE í TRIANGLE_FAN
     gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
 }

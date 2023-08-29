@@ -14,6 +14,7 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
+    // Breyta röðun punkta svo hægt sé að teikna T með TRIANGLE_STRIP.
     var vertices = new Float32Array([  0.2, -0.8,
                                       -0.2, -0.8,
                                        0.2,  0.4,
@@ -52,5 +53,6 @@ window.onload = function init()
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
+    // Nota TRIANGLE_STRIP í stað TRIANGLE_FAN.
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 8 );
 }
