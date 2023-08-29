@@ -15,3 +15,11 @@
 * Teikna bókstafinn T sem sést í T-shape-fan.html
     * Í stað þess að nota TRIANGLE_FAN, nota TRIANGLE_STRIP
     * Breyta röðun punkta þannig að útkoman sé enn bókstafurinn T
+
+## Litríkir Þríhyrningar
+* Teikna 100 þríhyrninga með:
+    * Staðsetningu af handahófi
+    * Lit af handahófi
+
+## Teppi Sierpinskis
+* Búa til teppi Sierpinskis

@@ -8,3 +8,5 @@ Verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslands fyrir haus
     * Löng leið að Sierpinski
     * Réttur Rétthyrningur
     * T-eikning
+    * Litríkir Þríhyrningar
+    * Teppi Sierpinskis
