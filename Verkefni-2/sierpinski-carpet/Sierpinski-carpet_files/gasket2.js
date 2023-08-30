@@ -5,6 +5,7 @@ var gl;
 
 var points = [];
 
+// Stilling hversu oft á að skipta ferhyrningunum niður.
 var NumTimesToSubdivide = 5;
 
 window.onload = function init()
@@ -20,13 +21,16 @@ window.onload = function init()
 
     // First, initialize the corners of our gasket with three points.
 
+    // Upphafspunktarnir; hornpunktar teikniborðsins.
     var vertices = [
         vec2( -1, -1 ),
-        vec2(  0,  1 ),
+        vec2( -1,  1 ),
+        vec2(  1,  1 ),
         vec2(  1, -1 )
     ];
 
-    divideTriangle( vertices[0], vertices[1], vertices[2],
+    // Köllum á divideSquare til að búta ferhyrninginn niður.
+    divideSquare( vertices[0], vertices[1], vertices[2], vertices[3],
                     NumTimesToSubdivide);
 
     //
@@ -55,34 +59,48 @@ window.onload = function init()
     render();
 };
 
-function triangle( a, b, c )
+// Setur gefin hnit í fylkið sem á að teikna.
+function square( a, b, c, d)
 {
-    points.push( a, b, c );
+    // Setur a og c tvisvar svo hægt sé að teikna ferhyrning með tveimur þríhyrningum.
+    points.push( a, b, c, a, c, d);
 }
 
-function divideTriangle( a, b, c, count )
+// Brýtur ferhyrninginn í hnitunum niður í 9 minni ferhyrninga.
+function divideSquare( a, b, c, d, count )
 {
 
-    // check for end of recursion
-
+    // Athuga hvort hætta eigi að brjóta ferhyrninginn niður
     if ( count === 0 ) {
-        triangle( a, b, c );
+        square( a, b, c, d);
     }
     else {
 
-        //bisect the sides
-
-        var ab = mix( a, b, 0.5 );
-        var ac = mix( a, c, 0.5 );
-        var bc = mix( b, c, 0.5 );
+        // Finna alla punkta fyrir nýju ferhyrningana.
+        var aab = mix( a, b, (1 / 3) );
+        var abb = mix( a, b, (2 / 3) );
+        var bbc = mix( b, c, (1 / 3) );
+        var bcc = mix( b, c, (2 / 3) );
+        var ccd = mix( c, d, (1 / 3) );
+        var cdd = mix( c, d, (2 / 3) );
+        var aad = mix( a, d, (1 / 3) );
+        var add = mix( a, d, (2 / 3) );
+        var abd = mix( bbc, aad, (2 / 3) );
+        var abc = mix( bbc, aad, (1 / 3) );
+        var bcd = mix( bcc, add, (1 / 3) );
+        var acd = mix( bcc, add, (2 / 3) );
 
         --count;
 
-        // three new triangles
-
-        divideTriangle( a, ab, ac, count );
-        divideTriangle( c, ac, bc, count );
-        divideTriangle( b, bc, ab, count );
+        // Búa til níu nýja ferhyrninga.
+        divideSquare( a, aab, abd, aad, count );
+        divideSquare( aab, abb, abc, abd, count );
+        divideSquare( abb, b, bbc, abc, count );
+        divideSquare( abc, bbc, bcc, bcd, count );
+        divideSquare( bcd, bcc, c, ccd, count );
+        divideSquare( acd, bcd, ccd, cdd, count );
+        divideSquare( add, acd, cdd, d, count );
+        divideSquare( aad, abd, acd, add, count );
     }
 }
 

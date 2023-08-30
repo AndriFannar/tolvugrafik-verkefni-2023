@@ -23,4 +23,4 @@
 * Einnig teikna 100 þríhyrninga með því að nota 'Uniform' breytu til að færa eitt sett af hnútum í stað þess að búa til 100 hnúta.
 
 ## Teppi Sierpinskis
-* Búa til teppi Sierpinskis
+* Búa til teppi Sierpinskis endurkvæmt.
