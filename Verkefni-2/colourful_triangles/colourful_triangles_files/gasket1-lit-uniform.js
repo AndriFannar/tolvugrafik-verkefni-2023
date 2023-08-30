@@ -14,7 +14,7 @@ window.onload = function init()
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     // Búa til fylki sem inniheldur einn þríhyrning í miðju.
-    var vertices = new Float32Array([ 0.0, 0.0, -0.16, -0.3, 0.16, -0.3 ]);
+    var vertices = new Float32Array([ 0.0, 0.0, -0.08, -0.15, 0.08, -0.15 ]);
 
     //
     //  Configure WebGL
@@ -61,7 +61,7 @@ function render() {
         }
 
         // Búum til nýja staðsetningu af handahófi til að færa þríhyrninginn á.
-        movement = [((Math.random() * 4) - 2), ((Math.random() * 4) - 2)];
+        movement = [((Math.random() * 2) - 1), ((Math.random() * 2) - 1)];
 
         // Setja litinn, senda breytta staðsetningu á hnútalitarann og teikna þríhyrninginn.
         gl.uniform4fv( colorLoc, vec4(colours[0], colours[1], colours[2], 1.0) );
