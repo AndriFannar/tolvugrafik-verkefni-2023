@@ -20,6 +20,7 @@
 * Teikna 100 þríhyrninga með:
     * Staðsetningu af handahófi
     * Lit af handahófi
+* Einnig teikna 100 þríhyrninga með því að nota 'Uniform' breytu til að færa eitt sett af hnútum í stað þess að búa til 100 hnúta.
 
 ## Teppi Sierpinskis
 * Búa til teppi Sierpinskis
