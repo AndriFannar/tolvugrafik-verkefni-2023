@@ -111,7 +111,7 @@ function render()
     for(let i = 0; i < 4; i++)
     {
         gl.uniform2fv( positionLoc, vec2(0, 0.4*i));
-        gl.drawArrays( gl.TRIANGLES, 6, 8 );
+        gl.drawArrays( gl.TRIANGLES, 6, 9 );
     }
 
     gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
