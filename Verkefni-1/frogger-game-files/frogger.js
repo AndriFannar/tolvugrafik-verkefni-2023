@@ -3,6 +3,8 @@
 var canvas;
 var gl;
 
+var points = 0;
+
 // Staðsetning hnúta sem á að teikna.
 var gameBoard = [];
 
@@ -11,7 +13,7 @@ var colorLoc;
 var positionLoc;
 
 var frog = vec2( 0.0 , 0.0 );
-
+var frogUp = true;
 
 var laneSize = 0.4;
 var gameColours = {
@@ -28,7 +30,7 @@ window.onload = function init()
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     var gameBoard = [
-        // Gangstéttin
+        // Gangstétt
         vec2( -1   , -0.6 ),
         vec2( -1   , -1   ),
         vec2(  1   , -0.6 ),
@@ -36,6 +38,7 @@ window.onload = function init()
         vec2(  1   , -0.6 ),
         vec2(  1   , -1   ),
 
+        // Vegmerkingar
         vec2( -1   , -0.61),
         vec2( -1   , -0.59),
         vec2(  1   , -0.61),
@@ -43,6 +46,7 @@ window.onload = function init()
         vec2(  1   , -0.61),
         vec2(  1   , -0.59),
 
+        // Froskur
         vec2(  0   , -0.7 ),
         vec2( -0.1 , -0.9 ),
         vec2(  0.1 , -0.9 )
@@ -71,25 +75,46 @@ window.onload = function init()
     colorLoc = gl.getUniformLocation( program, "fColor" );
     positionLoc = gl.getUniformLocation( program, "translation");
 
-    window.addEventListener("keydown", function(e) {
+    movement();
+    
+    render();
+};
+
+function movement()
+{
+    window.addEventListener("keydown", function(e) 
+    {
         switch(e.key) {
             case "ArrowUp":
+                if (frog[1] === 1.6) break;
                 frog[1] += laneSize;
+                if (frog[1] === 1.6) turnAround;
                 break;
+
             case "ArrowDown":
+                if (frog[1] === 0.0) break;
                 frog[1] -= laneSize;
+                if (frog[1] === 0.0) turnAround;
                 break;
+
             case "ArrowLeft":
+                if (frog[0] === -0.8) break;
                 frog[0] -= laneSize;
                 break;
+
             case "ArrowRight":
+                if (frog[0] === 0.8) break;
                 frog[0] += laneSize;
                 break;
         }
     })
+}
 
-    render();
-};
+function turnAround()
+{
+    if ( (frogUp && frog[1] === -0.7) || (!frogUp && frog[1] === 0.7) ) return;
+    else console.log("What");
+}
 
 function render()
 {
@@ -111,7 +136,7 @@ function render()
     for(let i = 0; i < 4; i++)
     {
         gl.uniform2fv( positionLoc, vec2(0, 0.4*i));
-        gl.drawArrays( gl.TRIANGLES, 6, 9 );
+        gl.drawArrays( gl.TRIANGLES, 6, 8 );
     }
 
     gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
