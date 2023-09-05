@@ -12,10 +12,10 @@ var gameBoard = [];
 var colorLoc;
 var positionLoc;
 
-var frog = vec2( 0.0 , 0.0 );
+var lane = [0.0 , 0.0];
 var frogUp = true;
 
-var laneSize = 0.4;
+var laneSize = 0.40;
 var gameColours = {
     gray:   vec4(0.671, 0.671, 0.671, 1.0),
     yellow: vec4(0.929, 0.812, 0.078, 1.0),
@@ -86,25 +86,25 @@ function movement()
     {
         switch(e.key) {
             case "ArrowUp":
-                if (frog[1] === 1.6) break;
-                frog[1] += laneSize;
-                if (frog[1] === 1.6) turnAround;
+                if (lane[1] === 4) break;
+                lane[1]++;
+                if (lane[1] === 4) turnAround();
                 break;
 
             case "ArrowDown":
-                if (frog[1] === 0.0) break;
-                frog[1] -= laneSize;
-                if (frog[1] === 0.0) turnAround;
+                if (lane[1] === 0) break;
+                lane[1]--;
+                if (lane[1] === 0) turnAround();
                 break;
 
             case "ArrowLeft":
-                if (frog[0] === -0.8) break;
-                frog[0] -= laneSize;
+                if (lane[0] === -2) break;
+                lane[0]--;
                 break;
 
             case "ArrowRight":
-                if (frog[0] === 0.8) break;
-                frog[0] += laneSize;
+                if (lane[0] === 2) break;
+                lane[0]++;
                 break;
         }
     })
@@ -112,7 +112,8 @@ function movement()
 
 function turnAround()
 {
-    if ( (frogUp && frog[1] === -0.7) || (!frogUp && frog[1] === 0.7) ) return;
+    console.log("Turn around");
+    if ( (frogUp && lane[1] === 0) || (!frogUp && lane[1] === 4) ) return;
     else console.log("What");
 }
 
@@ -135,14 +136,14 @@ function render()
 
     for(let i = 0; i < 4; i++)
     {
-        gl.uniform2fv( positionLoc, vec2(0, 0.4*i));
+        gl.uniform2fv( positionLoc, vec2(0, laneSize * i));
         gl.drawArrays( gl.TRIANGLES, 6, 8 );
     }
 
     gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
 
     gl.uniform4fv( colorLoc, gameColours.green );
-    gl.uniform2fv( positionLoc, frog);
+    gl.uniform2fv( positionLoc, vec2(laneSize * lane[0], laneSize * lane[1]));
     gl.drawArrays( gl.TRIANGLES, 12, 15 );
 
     window.requestAnimFrame( render );
