@@ -8,12 +8,15 @@
     <script id="vertex-shader" type="x-shader/x-vertex">
       attribute vec4 vPosition;
       uniform vec2 translation;
+      uniform vec2 sinCos;
 
       void
       main()
       {
           vec4 newPos = vPosition;
           newPos.xy += translation;
+          newPos.x = sinCos.y * newPos.x - sinCos.x * newPos.y;
+          newPos.y = sinCos.x * newPos.x - sinCos.y * newPos.y;
           gl_Position = newPos;
       }
     </script>

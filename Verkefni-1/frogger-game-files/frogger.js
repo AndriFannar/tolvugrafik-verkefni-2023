@@ -11,15 +11,18 @@ var gameBoard = [];
 // Uniform breytur sem tengjast liturum.
 var colorLoc;
 var positionLoc;
+var sinCosLoc;
+var sinCos  = vec2( 0.0, -1.0);
 
-var lane = [0.0 , 0.0];
-var frogUp = true;
+var lane = [0.0 , -2.0];
+var goingUp = true;
 
 var laneSize = 0.40;
 var gameColours = {
     gray:   vec4(0.671, 0.671, 0.671, 1.0),
     yellow: vec4(0.929, 0.812, 0.078, 1.0),
-    green:  vec4(0.039, 0.639, 0.004, 1.0)
+    green:  vec4(0.039, 0.639, 0.004, 1.0),
+    blue:   vec4(0.071, 0.408, 0.749, 1.0)
 };
 
 window.onload = function init()
@@ -29,27 +32,35 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    var gameBoard = [
+    gameBoard = [
         // Gangstétt
-        vec2( -1   , -0.6 ),
-        vec2( -1   , -1   ),
-        vec2(  1   , -0.6 ),
-        vec2( -1   , -1   ),
-        vec2(  1   , -0.6 ),
-        vec2(  1   , -1   ),
+        vec2( -1.0 , -0.6 ),
+        vec2( -1.0 , -1   ),
+        vec2(  1.0 , -0.6 ),
+        vec2( -1.0 , -1   ),
+        vec2(  1.0 , -0.6 ),
+        vec2(  1.0 , -1   ),
 
         // Vegmerkingar
-        vec2( -1   , -0.61),
-        vec2( -1   , -0.59),
-        vec2(  1   , -0.61),
-        vec2( -1   , -0.59),
-        vec2(  1   , -0.61),
-        vec2(  1   , -0.59),
+        vec2( -1.0 , -0.61),
+        vec2( -1.0 , -0.59),
+        vec2(  1.0 , -0.61),
+        vec2( -1.0 , -0.59),
+        vec2(  1.0 , -0.61),
+        vec2(  1.0 , -0.59),
 
-        // Froskur
-        vec2(  0   , -0.7 ),
-        vec2( -0.1 , -0.9 ),
-        vec2(  0.1 , -0.9 )
+        //Froskur
+        vec2(  0.0 ,  0.1 ),
+        vec2( -0.1 , -0.1 ),
+        vec2(  0.1 , -0.1 ),
+
+        // Bíll
+        vec2( -0.9 , -0.3 ),
+        vec2( -0.9 , -0.5 ),
+        vec2( -0.6 , -0.3 ),
+        vec2( -0.9 , -0.5 ),
+        vec2( -0.6 , -0.3 ),
+        vec2( -0.6 , -0.5 ),
     ];
 
 
@@ -74,6 +85,7 @@ window.onload = function init()
     // Finna staðsetningu uniform breytanna í liturunum.
     colorLoc = gl.getUniformLocation( program, "fColor" );
     positionLoc = gl.getUniformLocation( program, "translation");
+    sinCosLoc = gl.getUniformLocation( program, "sinCos");
 
     movement();
     
@@ -86,15 +98,15 @@ function movement()
     {
         switch(e.key) {
             case "ArrowUp":
-                if (lane[1] === 4) break;
+                if (lane[1] === 2) break;
                 lane[1]++;
-                if (lane[1] === 4) turnAround();
+                if (lane[1] === 2) turnAround();
                 break;
 
             case "ArrowDown":
-                if (lane[1] === 0) break;
+                if (lane[1] === -2) break;
                 lane[1]--;
-                if (lane[1] === 0) turnAround();
+                if (lane[1] === -2) turnAround();
                 break;
 
             case "ArrowLeft":
@@ -112,17 +124,33 @@ function movement()
 
 function turnAround()
 {
-    console.log("Turn around");
-    if ( (frogUp && lane[1] === 0) || (!frogUp && lane[1] === 4) ) return;
-    else console.log("What");
+    if ( lane[1] === -2 ) return;
+    else 
+    {
+        points++;
+
+        if (goingUp)
+        {
+            sinCos[0] = Math.sin(0);
+            sinCos[1] = Math.cos(0);
+        }
+        else 
+        {
+            sinCos[0] = Math.sin(Math.PI);
+            sinCos[1] = Math.cos(Math.PI);
+        }
+        lane[0] = -lane[0];
+        lane[1] = -lane[1];
+        goingUp = !goingUp;
+    }
 }
 
 function render()
 {
-    gl.clear( gl.COLOR_BUFFER_BIT );
-
-    gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
+    gl.uniform2fv( sinCosLoc, vec2( 0.0 , -1.0));
     gl.uniform4fv( colorLoc, gameColours.gray );
+
+    gl.clear( gl.COLOR_BUFFER_BIT );
 
     // Teikna gangstéttina.
     for(let i = 0; i < 2; i++)
@@ -131,20 +159,25 @@ function render()
         gl.drawArrays( gl.TRIANGLES, 0, 6 );
     }
 
+    gl.uniform4fv( colorLoc, gameColours.blue );
+    gl.uniform2fv( positionLoc, vec2(0 , 0));
+    gl.drawArrays( gl.TRIANGLES, 15, 6 );
+
     gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
     gl.uniform4fv( colorLoc, gameColours.yellow );
 
     for(let i = 0; i < 4; i++)
     {
         gl.uniform2fv( positionLoc, vec2(0, laneSize * i));
-        gl.drawArrays( gl.TRIANGLES, 6, 8 );
+        gl.drawArrays( gl.TRIANGLES, 6, 6 );
     }
 
     gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
 
     gl.uniform4fv( colorLoc, gameColours.green );
     gl.uniform2fv( positionLoc, vec2(laneSize * lane[0], laneSize * lane[1]));
-    gl.drawArrays( gl.TRIANGLES, 12, 15 );
+    gl.uniform2fv( sinCosLoc, sinCos);
+    gl.drawArrays( gl.TRIANGLES, 12, 3 );
 
     window.requestAnimFrame( render );
 }
