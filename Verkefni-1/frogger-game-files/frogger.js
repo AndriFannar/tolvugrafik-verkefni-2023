@@ -22,10 +22,10 @@ var positionLoc;
 var sinCosLoc;
 
 // Sínus og Kósínus gildin sem á að senda á hnútalitarann (snúningur hlutarins).
-var sinCos  = vec2( 0.0, -1.0);
+var sinCos  = vec2( 0.0, 1.0);
 
 // Núverandi staðsetning leikmanns (skipt í akgreinar).
-var lane = [0.0 , -2.0];
+var lane = [0.0 , 0.0];
 
 // Er froskurinn á uppleið.
 var goingUp = true;
@@ -34,7 +34,7 @@ var goingUp = true;
 var frogPos = [ 0.0 , 0.0 ];
 
 // Hraði bílanna.
-var carSpeed = 0.01;
+var carSpeed = 0.0001;
 
 // Staðsetning bílanna.
 var carsX = [ 0.0 , 0.0 , 0.0 ];
@@ -134,7 +134,8 @@ function movement()
                 // Athuga hvort leikmaður sé kominn út á enda.
                 if (lane[1] === 2) break; // Ef svo er þá á hann ekki að færast lengra.
                 lane[1]++; // Færa leikmann áfram um eina akgrein.
-                if (lane[1] === 2) turnAround(); // Ef leikmaður er kominn út á enda (aðeins á y-ás), þá á að snúa honum við.
+                if (lane[1] === 2) reachedEnd
+            (); // Ef leikmaður er kominn út á enda (aðeins á y-ás), þá á að snúa honum við.
                 break;
 
             case "ArrowDown":
@@ -143,13 +144,17 @@ function movement()
                 break;
 
             case "ArrowLeft":
+                sinCos[0] = Math.sin(Math.PI / 2);
+                sinCos[1] = Math.cos(Math.PI / 2);
                 if (lane[0] === 2) break;
-                lane[0]++;
+                lane[0]--;
                 break;
 
             case "ArrowRight":
+                sinCos[0] = Math.sin((3 * Math.PI) / 2);
+                sinCos[1] = Math.cos((3 * Math.PI) / 2);
                 if (lane[0] === -2) break;
-                lane[0]--;
+                lane[0]++;
                 break;
         }
 
@@ -162,37 +167,48 @@ function movement()
 /**
  * Fall sem sér um að snúa leikmanni við.
  */
-function turnAround()
+function reachedEnd()
 {
     // Auka stigafjölda.
     points++;
+    console.log("Stig: ", points);
 
     // Ef leikmaðurinn er á leið upp á að snúa honum niður.
     if (goingUp)
     {
-        sinCos[0] = Math.sin(0);
-        sinCos[1] = Math.cos(0);
-    }
-    else 
-    {   // Annars á að snúa honum upp.
         sinCos[0] = Math.sin(Math.PI);
         sinCos[1] = Math.cos(Math.PI);
     }
-    // Snúa akgreinum y-ás við (akgrein -2 á alltaf að vera aftast).
-    lane[1] = -lane[1];
+    else 
+    {   // Annars á að snúa honum upp.
+        sinCos[0] = Math.sin(0);
+        sinCos[1] = Math.cos(0);
+    }
+    // Snúa akgreinum við svo froskurinn byrtist á réttum stað eftir snúning.
+    lane[0] = lane[0];
+    lane[1] = lane[1];
     goingUp = !goingUp;
-
 }
 
 function collisionDetection()
 {
+    for(let i = 12; i < 15; i++)
+    {
+        let absPos = [0.0 , 0.0]
+        absPos[0] = gameBoard[i][0] + frogPos[0];
+        absPos[1] = gameBoard[i][1] + frogPos[1];
+
+
+    }
+    console.log( gameBoard[12][0] + frogPos[1] );
+    console.log( carsX );
     console.log(gameBoard[13] + frogPos);
 }
 
 function render()
 {
     // Stilla hnúta og bútalitarann fyrir fyrstu teiknun.
-    gl.uniform2fv( sinCosLoc, vec2( 0.0 , -1.0));
+    gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0));
     gl.uniform4fv( colorLoc, gameColours.gray );
 
     // Hreinsa teikniborðið
@@ -209,8 +225,12 @@ function render()
     for(let i = 0; i < 3; i++)
     {
         gl.uniform4fv( colorLoc, gameColours.blue );
+
         carsX[i] = carsX[i] + carSpeed * (i + 1);
         if (carsX[i] > 2.5) carsX[i] = 0;
+
+        collisionDetection(carsX[i]);
+
         gl.uniform2fv( positionLoc, vec2( carsX[i] , laneSize * i));
         gl.drawArrays( gl.TRIANGLES, 15, 6 );
     }

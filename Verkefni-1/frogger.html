@@ -14,9 +14,9 @@
       main()
       {
           vec4 newPos = vPosition;
+          newPos.x = sinCos[1] * vPosition.x - sinCos[0] * vPosition.y;
+          newPos.y = sinCos[0] * vPosition.x - sinCos[1] * vPosition.y;
           newPos.xy += translation;
-          newPos.x = sinCos[1] * newPos.x - sinCos[0] * newPos.y;
-          newPos.y = sinCos[0] * newPos.x - sinCos[1] * newPos.y;
           gl_Position = newPos;
           gl_PointSize = 5.0;
       }
