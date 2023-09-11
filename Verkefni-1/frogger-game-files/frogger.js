@@ -25,13 +25,13 @@ var sinCosLoc;
 var sinCos  = vec2( 0.0, 1.0);
 
 // Núverandi staðsetning leikmanns (skipt í akgreinar).
-var lane = [0.0 , 0.0];
+var lane = [0.0 , -2.0];
 
 // Er froskurinn á uppleið.
 var goingUp = true;
 
 // Staðsetning frosksins í hnitum.
-var frogPos = [ 0.0 , 0.0 ];
+var frogPos = [ 0.0 , -0.8 ];
 
 // Hraði bílanna.
 var carSpeed = 0.0001;
@@ -88,7 +88,7 @@ window.onload = function init()
         vec2( -1.1 , -0.3 ),
         vec2( -1.4 , -0.5 ),
         vec2( -1.1 , -0.3 ),
-        vec2( -1.1 , -0.5 )
+        vec2( -1.1 , -0.5 ),
     ];
 
 
@@ -207,12 +207,14 @@ function collisionDetection()
 
 function render()
 {
-    // Stilla hnúta og bútalitarann fyrir fyrstu teiknun.
-    gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0));
+    // Stilla hnúta og bútalitarann fyrir fyrstu teiknun. 
+    gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0 ));
     gl.uniform4fv( colorLoc, gameColours.gray );
 
     // Hreinsa teikniborðið
     gl.clear( gl.COLOR_BUFFER_BIT );
+
+    gl.drawArrays(gl.POINTS, 21, 1);
 
     // Teikna gangstéttina.
     for(let i = 0; i < 2; i++)
