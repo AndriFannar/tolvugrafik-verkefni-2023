@@ -220,7 +220,12 @@ function movement()
         if ((evenLanes && (currentPlayerLane[1] === (gameBounds - 1))) || 
             (!evenLanes && (currentPlayerLane[1] === gameBounds)))
         {
-          if (goingUp) updatePoints();
+          if (goingUp)
+          {
+            frogSinCos[0] = Math.sin(Math.PI); 
+            frogSinCos[1] = Math.cos(Math.PI);
+            updatePoints();
+          } 
         }
     
         break;
@@ -239,7 +244,12 @@ function movement()
 
         if (currentPlayerLane[1] === -gameBounds)
         {
-          if (!goingUp) updatePoints();
+          if (!goingUp) 
+          {
+            frogSinCos[0] = Math.sin(0); 
+            frogSinCos[1] = Math.cos(0);
+            updatePoints();
+          }
         } 
 
         break;
