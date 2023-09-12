@@ -117,6 +117,7 @@ function initGame()
   // Ef fjöldi akgreina er slétt tala þarf að hliðra leikmanni.
   evenLanes = (LANES % 2 === 0); 
   if (evenLanes) playerOffset = laneSize * 0.5;
+  else playerOffset = 0;
 
   // Upphafsstilla bíla.
   initCars();
