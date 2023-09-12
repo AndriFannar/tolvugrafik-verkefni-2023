@@ -164,6 +164,7 @@ function restart()
 
   // Færir leikmann á byrjunarreit.
   currentPlayerLane = [0, -gameBounds];
+  goingUp = true;
 
   // Endurstillir snúning leikmannsins.
   frogSinCos = vec2(0.0, 1.0);
