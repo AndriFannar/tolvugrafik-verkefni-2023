@@ -71,12 +71,12 @@ function initGame()
     vec2( 1.0, -1),
 
     // Vegmerkingar
-    vec2(-1.0, (sidewalkHeight + 0.01)),
-    vec2(-1.0, (sidewalkHeight - 0.01)),
-    vec2( 1.0, (sidewalkHeight + 0.01)),
-    vec2(-1.0, (sidewalkHeight - 0.01)),
-    vec2( 1.0, (sidewalkHeight + 0.01)),
-    vec2( 1.0, (sidewalkHeight - 0.01)),
+    vec2(-1.0, (sidewalkHeight + (laneSize * 0.03))),
+    vec2(-1.0, (sidewalkHeight - (laneSize * 0.03))),
+    vec2( 1.0, (sidewalkHeight + (laneSize * 0.03))),
+    vec2(-1.0, (sidewalkHeight - (laneSize * 0.03))),
+    vec2( 1.0, (sidewalkHeight + (laneSize * 0.03))),
+    vec2( 1.0, (sidewalkHeight - (laneSize * 0.03))),
 
     //Froskur
     vec2( 0.0,                      ((laneSize * 0.5) - 0.03)),
