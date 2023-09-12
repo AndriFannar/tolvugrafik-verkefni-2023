@@ -79,17 +79,17 @@ function initGame()
     vec2( 1.0, (sidewalkHeight - (laneSize * 0.03))),
 
     //Froskur
-    vec2( 0.0,                      ((laneSize * 0.5) - 0.03)),
-    vec2(-((laneSize / 2) - 0.03), -((laneSize * 0.5) - 0.03)),
-    vec2( ((laneSize / 2) - 0.03), -((laneSize * 0.5) - 0.03)),
+    vec2( 0.0,                                  ((laneSize * 0.5) - (laneSize * 0.1))),
+    vec2(-((laneSize / 2) - (laneSize * 0.1)), -((laneSize * 0.5) - (laneSize * 0.1))),
+    vec2( ((laneSize / 2) - (laneSize * 0.1)), -((laneSize * 0.5) - (laneSize * 0.1))),
 
     // Bíll
-    vec2(-(0.75 * laneSize), ((sidewalkHeight + laneSize) - 0.03)),
-    vec2(-(0.75 * laneSize),  (sidewalkHeight + 0.03)),
-    vec2( (0.75 * laneSize), ((sidewalkHeight + laneSize) - 0.03)),
-    vec2(-(0.75 * laneSize),  (sidewalkHeight + 0.03)),
-    vec2( (0.75 * laneSize), ((sidewalkHeight + laneSize) - 0.03)),
-    vec2( (0.75 * laneSize),  (sidewalkHeight + 0.03)),
+    vec2(-(0.75 * laneSize), ((sidewalkHeight + laneSize) - (laneSize * 0.1))),
+    vec2(-(0.75 * laneSize),  (sidewalkHeight + (laneSize * 0.1))),
+    vec2( (0.75 * laneSize), ((sidewalkHeight + laneSize) - (laneSize * 0.1))),
+    vec2(-(0.75 * laneSize),  (sidewalkHeight + (laneSize * 0.1))),
+    vec2( (0.75 * laneSize), ((sidewalkHeight + laneSize) - (laneSize * 0.1))),
+    vec2( (0.75 * laneSize),  (sidewalkHeight + (laneSize * 0.1))),
 
     // Stig
     vec2(-0.99, 0.99),
