@@ -10,7 +10,7 @@ var points = 0;
 var gameBoard = [];
 
 // Stærð akgreinanna.
-var laneSize = 0.40;
+var laneSize = 0.27;
 
 // Uniform breyta sem stjórnar lit á hlutunum.
 var colorLoc;
@@ -24,32 +24,43 @@ var sinCosLoc;
 // Sínus og Kósínus gildin sem á að senda á hnútalitarann (snúningur hlutarins).
 var frogSinCos  = vec2( 0.0, 1.0);
 
-// Núverandi staðsetning leikmanns (skipt í akgreinar).
-var lane = [0.0 , -2.0];
-
 // Er froskurinn á uppleið.
 var goingUp = true;
 
 // Staðsetning frosksins í hnitum.
-var frogPos = [ 0.0 , -0.8 ];
+var frogPos = [ 0.0 , -0.87 ];
 
 // Líf leikmanns.
 var life = 3;
 
 // Hraði bílanna.
-var carSpeed = 0.0005;
+var carSpeed = [0.004, -0.005, 0.003, -0.0045, 0.0055];
 
 var carSinCos = vec2( 0.0, 1.0);
 
 // Staðsetning bílanna.
-var carsX = [ -1.5 , -1.5 , -1.5 ];
+var carsX = [ 
+    [0 , -1.5], 
+    [0 , 1.5],
+    [0 , -1.5], 
+    [0 , 1.5],
+    [0 , -1.5] 
+];
+
+var carColours = [ 
+    [0, 0], 
+    [0, 0],
+    [0, 0], 
+    [0, 0],
+    [0, 0]
+];
 
 // Litir notaðir í forritinu.
 var gameColours = {
     gray:   vec4(0.671, 0.671, 0.671, 1.0),
     yellow: vec4(0.929, 0.812, 0.078, 1.0),
     green:  vec4(0.039, 0.639, 0.004, 1.0),
-    blue:   vec4(0.071, 0.408, 0.749, 1.0)
+    red:   vec4(1.0, 0.2, 0.2, 1.0)
 };
 
 
@@ -67,33 +78,52 @@ window.onload = function init()
     // Upphafsstaðsetningar leikhluta á leikborði fyrir breytingar.
     gameBoard = [
         // Gangstétt
-        vec2( -1.0 , -0.6 ),
+        vec2( -1.0 , -0.73 ),
         vec2( -1.0 , -1   ),
-        vec2(  1.0 , -0.6 ),
+        vec2(  1.0 , -0.73 ),
         vec2( -1.0 , -1   ),
-        vec2(  1.0 , -0.6 ),
+        vec2(  1.0 , -0.73 ),
         vec2(  1.0 , -1   ),
 
         // Vegmerkingar
-        vec2( -1.0 , -0.61),
-        vec2( -1.0 , -0.59),
-        vec2(  1.0 , -0.61),
-        vec2( -1.0 , -0.59),
-        vec2(  1.0 , -0.61),
-        vec2(  1.0 , -0.59),
+        vec2( -1.0 , -0.72),
+        vec2( -1.0 , -0.74),
+        vec2(  1.0 , -0.72),
+        vec2( -1.0 , -0.74),
+        vec2(  1.0 , -0.72),
+        vec2(  1.0 , -0.74),
 
         //Froskur
-        vec2(  0.0 ,  0.1 ),
+        vec2(  0.0 ,  0.11 ),
         vec2( -0.1 , -0.1 ),
         vec2(  0.1 , -0.1 ),
 
         // Bíll
-        vec2( -0.2 , -0.3 ),
-        vec2( -0.2 , -0.5 ),
-        vec2(  0.2 , -0.3 ),
-        vec2( -0.2 , -0.5 ),
-        vec2(  0.2 , -0.3 ),
-        vec2(  0.2 , -0.5 )
+        vec2( -0.2 , -0.49 ),
+        vec2( -0.2 , -0.7 ),
+        vec2(  0.2 , -0.49 ),
+        vec2( -0.2 , -0.7 ),
+        vec2(  0.2 , -0.49 ),
+        vec2(  0.2 , -0.7 ),
+
+        // Stig
+        vec2( -0.99 ,  0.99),
+        vec2( -0.99 ,  0.92),
+        vec2( -0.97, 0.99),
+        vec2( -0.99 ,  0.92),
+        vec2( -0.97, 0.99),
+        vec2( -0.97, 0.92),
+
+        // Hjarta
+        vec2(0.95, 0.91),
+        vec2(0.91, 0.97),
+        vec2(0.99, 0.97),
+        vec2(0.91, 0.97),
+        vec2(0.93, 0.99),
+        vec2(0.95, 0.97),
+        vec2(0.95, 0.97),
+        vec2(0.97, 0.99),
+        vec2(0.99, 0.97)
     ];
 
 
@@ -120,6 +150,14 @@ window.onload = function init()
     positionLoc = gl.getUniformLocation( program, "translation");
     sinCosLoc = gl.getUniformLocation( program, "sinCos");
 
+    for(let i = 0; i < 5; i++)
+    {
+        for(let j = 0; j < 2; j++)
+        {
+            carColours[i][j] = randomColour();
+        }
+    }
+
     // Virkja hreyfingu leikmanns.
     movement();
     
@@ -139,37 +177,33 @@ function movement()
                 frogSinCos[0] = Math.sin(0);
                 frogSinCos[1] = Math.cos(0);
                 // Athuga hvort leikmaður sé kominn út á enda.
-                if (lane[1] == 2) break;
-                lane[1]++; // Færa leikmann áfram um eina akgrein.
-                if (lane[1] === 2 && goingUp) updatePoints(); // Ef svo er þá á hann ekki að færast lengra.
+                if (frogPos[1] === 0.75) break;
+                frogPos[1] = parseFloat((frogPos[1] + laneSize).toFixed(2)); // Færa leikmann áfram um eina akgrein.
+                if (frogPos[1] === 0.75 && goingUp) updatePoints(); // Ef svo er þá á hann ekki að færast lengra.
                 break;
 
             case "ArrowDown":
                 frogSinCos[0] = Math.sin(Math.PI);
                 frogSinCos[1] = Math.cos(Math.PI);
-                if (lane[1] === -2) break;
-                lane[1]--;
-                if (lane[1] === -2 && !goingUp) updatePoints();
+                if (frogPos[1] === -0.87) break;
+                frogPos[1] = parseFloat((frogPos[1] - laneSize).toFixed(2));
+                if (frogPos[1] === -0.87 && !goingUp) updatePoints();
                 break;
 
             case "ArrowLeft":
                 frogSinCos[0] = Math.sin(Math.PI / 2);
                 frogSinCos[1] = Math.cos(Math.PI / 2);
-                if (lane[0] === -2) break;
-                lane[0]--;
+                if (frogPos[0] === -0.81) break;
+                frogPos[0] = parseFloat((frogPos[0] - laneSize).toFixed(2));
                 break;
 
             case "ArrowRight":
                 frogSinCos[0] = Math.sin((3 * Math.PI) / 2);
                 frogSinCos[1] = Math.cos((3 * Math.PI) / 2);
-                if (lane[0] === 2) break;
-                lane[0]++;
+                if (frogPos[0] === 0.81) break;
+                frogPos[0] = parseFloat((frogPos[0] + laneSize).toFixed(2));
                 break;
         }
-
-        // Reikna staðsetningu frosksins.
-        frogPos[0] = laneSize * lane[0];
-        frogPos[1] = laneSize * lane[1];
     })
 }
 
@@ -180,67 +214,130 @@ function updatePoints()
 {
     // Auka stigafjölda.
     points++;
-    console.log("Stig: ", points);
     goingUp = !goingUp;
+
+    if (points > 10) restart();
 }
 
 function collisionDetection(car, carLane)
 {
-    if((lane[1] === carLane - 1) && ((frogPos[0] < car + 0.3) && (frogPos[0] > car - 0.3))) 
+    if(((frogPos[1] / laneSize) === carLane - 1) && ((frogPos[0] < car + 0.3) && (frogPos[0] > car - 0.3))) 
     {
-        life--;
-        frogPos[1] = -0.8;
-        lane[1] = -2;
+        if (goingUp) frogPos[1] = -0.87;
+        else frogPos[1] = 0.75;
+        if (--life === 0) restart();
     }
 }
 
-function render()
+function restart()
 {
-    // Stilla hnúta og bútalitarann fyrir fyrstu teiknun. 
-    gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0 ));
+    life = 3;
+    points = 0;
+}
+
+function randomColour()
+{
+    return vec4((Math.random() / 0.7) + 0.3, (Math.random() / 0.7) + 0.3, (Math.random() / 0.7) + 0.3, 1.0);
+}
+
+function renderBackground()
+{
     gl.uniform4fv( colorLoc, gameColours.gray );
 
-    // Hreinsa teikniborðið
-    gl.clear( gl.COLOR_BUFFER_BIT );
-
-    // Teikna gangstéttina.
     for(let i = 0; i < 2; i++)
     {
-        gl.uniform2fv( positionLoc, vec2(0, 1.6*i));
+        gl.uniform2fv( positionLoc, vec2(0, 1.62*i));
         gl.drawArrays( gl.TRIANGLES, 0, 6 );
     }
 
     gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
     gl.uniform4fv( colorLoc, gameColours.yellow );
 
-    for(let i = 0; i < 4; i++)
+    // Teikna vegamerkingar.
+    for(let i = 0; i < 6; i++)
     {
         gl.uniform2fv( positionLoc, vec2(0, laneSize * i));
         gl.drawArrays( gl.TRIANGLES, 6, 6 );
     }
+}
 
-    // Teikna bíla.
-    for(let i = 0; i < 3; i++)
+function renderCars()
+{
+    for(let i = 0; i < 1; i++)
     {
-        gl.uniform4fv( colorLoc, gameColours.blue );
+        for(let j = 0; j < 2; j++)
+        {
+            gl.uniform4fv( colorLoc, carColours[i][j] );
 
-        gl.uniform2fv( sinCosLoc, carSinCos );
+            carsX[i][j] = carsX[i][j] + carSpeed[i];
+            if (carsX[i][j] > 1.6) carsX[i][j] = -1.5;
+            else if (carsX[i][j] < -1.6) carsX[i][j] = 1.5;
 
-        carsX[i] = carsX[i] + carSpeed * (i + 1);
-        if (carsX[i] > 1.5) carsX[i] = -1.5;
+            collisionDetection(carsX[i][j], i);
 
-        collisionDetection(carsX[i], i);
-
-        gl.uniform2fv( positionLoc, vec2( carsX[i] , laneSize * i));
-        gl.drawArrays( gl.TRIANGLES, 15, 6 );
+            gl.uniform2fv( positionLoc, vec2( carsX[i][j] , laneSize * i));
+            gl.drawArrays( gl.TRIANGLES, 15, 6 );
+        }
     }
+}
 
-    gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
-
+function renderPlayer()
+{
     gl.uniform4fv( colorLoc, gameColours.green );
     gl.uniform2fv( positionLoc, frogPos);
     gl.uniform2fv( sinCosLoc, frogSinCos);
     gl.drawArrays( gl.TRIANGLES, 12, 3 );
+}
+
+function renderPoints()
+{
+    for(let i = 0; i < points; i++)
+    {
+        gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0 ));
+
+        gl.uniform4fv( colorLoc, gameColours.red );
+
+        gl.uniform2fv( positionLoc, vec2(i * 0.03 , 0.0));
+        gl.drawArrays( gl.TRIANGLES, 21, 6 );
+    }
+}
+
+function renderHearts()
+{
+    for(let i = 0; i < life; i++)
+    {
+        gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0 ));
+
+        gl.uniform4fv( colorLoc, gameColours.red );
+
+        gl.uniform2fv( positionLoc, vec2(i * -0.08 , 0.0));
+        gl.drawArrays( gl.TRIANGLES, 27, 9 );
+    }
+}
+
+
+function render()
+{
+    // Stilla hnúta og bútalitarann fyrir fyrstu teiknun. 
+    gl.uniform2fv( sinCosLoc, vec2( 0.0 , 1.0 ));
+
+    // Hreinsa teikniborðið
+    gl.clear( gl.COLOR_BUFFER_BIT );
+
+    // Teikna bakgrunn.
+    renderBackground();
+
+    // Teikna bíla.
+    renderCars();
+
+    gl.uniform2fv( positionLoc, vec2(0.0 , 0.0));
+
+    // Teikna leikmann.
+    renderPlayer();
+
+    renderPoints();
+
+    renderHearts();
 
     window.requestAnimFrame( render );
 }
