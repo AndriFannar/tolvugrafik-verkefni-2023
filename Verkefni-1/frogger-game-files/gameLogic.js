@@ -299,13 +299,16 @@ function collisionDetection(car, carLane)
     (((currentPlayerLane[0] * laneSize) + playerOffset) < (car + laneSize)) && // +X-ás
     (((currentPlayerLane[0] * laneSize) + playerOffset) > (car - laneSize)))   // -X-ás
   {
-    if (--livesLeft === 0) restart();                // Ef leikmaður hefur tapað öllum lífum endurstillist leikurinn.
     if (goingUp) currentPlayerLane[1] = -gameBounds; // Ef leikmaður er á leið upp lifnar hann við niðri.
     else currentPlayerLane[1] = gameBounds;          // Ef leikmaður er á leið niður lifnar hann við uppi.
+    if (--livesLeft === 0) restart();                // Ef leikmaður hefur tapað öllum lífum endurstillist leikurinn.
   }
 }
 
 
+/**
+ * Breytir stillingum leiksins.
+ */
 function changeParams()
 {    
     document.getElementById("changeParams").onclick = function() 
