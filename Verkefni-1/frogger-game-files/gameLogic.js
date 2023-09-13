@@ -8,8 +8,11 @@ var CARS_PER_LANE = 2;
 // Líf leikmanns.
 var MAX_LIVES = 3;
 
-// Stig sem þarf að ná til að vinna
+// Stig sem þarf að ná til að vinna.
 var MAX_POINTS = 10;
+
+// Hraði bíla.
+var CAR_SPEED_MULTIPLIER = 0.03;
 
 /* ----------------------------------- */
 
@@ -177,7 +180,7 @@ function restart()
       carColours[i][j] = randomColour();
     }
 
-    CAR_SPEED[i] = ((Math.random() * 0.03) - 0.015);
+    CAR_SPEED[i] = ((Math.random() * CAR_SPEED_MULTIPLIER) - (CAR_SPEED_MULTIPLIER * 0.5));
   }
 }
 
@@ -329,6 +332,7 @@ function changeParams()
         MAX_POINTS = document.getElementById("points").value;
         CARS_PER_LANE = document.getElementById("cars").value;
         LANES = document.getElementById("lanes").value;
+        CAR_SPEED_MULTIPLIER = document.getElementById("carSpeed").value * 0.01;
         initGame();
     };
 
