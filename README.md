@@ -1,12 +1,16 @@
-# TÖL105M Tölvugrafík - Verkefni
-Verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslands fyrir haustið 2023
+# TÖL105M Tölvugrafík - Heimadæmi & Verkefni
+Heimadæmi & verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslands fyrir haustið 2023.
 
-## Verkefni:
-* Verkefni 1
+## Heimadæmi:
+* Heimadæmi 1
     * Skarpur Sierpinski Þríhyrningur
-* Verkefni 2
+* Heimadæmi 2
     * Löng leið að Sierpinski
     * Réttur Rétthyrningur
     * T-eikning
     * Litríkir Þríhyrningar
     * Teppi Sierpinskis
+      
+ ## Verkefni:
+ * Verkefni 1
+      * Frogger
