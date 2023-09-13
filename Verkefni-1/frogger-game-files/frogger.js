@@ -101,8 +101,16 @@ function renderCars()
       gl.uniform4fv(colorLoc, carColours[i][j]); // Nær í lit.
 
       carsX[i][j] = carsX[i][j] + CAR_SPEED[i];  // Reiknar tilfærslu.
-      if (carsX[i][j] > 1.6) carsX[i][j] = -1.5; // Ef bíll er kominn fyrir utan mörk þá færist hann til baka.
-      else if (carsX[i][j] < -1.6) carsX[i][j] = 1.5;
+      if (carsX[i][j] > 1.6)
+      {
+        carsX[i][j] = -1.5; // Ef bíll er kominn fyrir utan mörk þá færist hann til baka.
+        carColours[i][j] = randomColour();
+      } 
+      else if (carsX[i][j] < -1.6)
+      {
+        carsX[i][j] = 1.5;
+        carColours[i][j] = randomColour();
+      } 
 
       // Athuga árekstur.
       collisionDetection(carsX[i][j], i);

@@ -311,8 +311,8 @@ function collisionDetection(car, carLane)
 {
   // Athugar hvort leikmaður hafi rekist á bíl.
   if ((currentPlayerLane[1] === (carLane - (gameBounds - 1))) &&               // Sama akgrein.
-    (((currentPlayerLane[0] * laneSize) + playerOffset) < (car + laneSize)) && // +X-ás
-    (((currentPlayerLane[0] * laneSize) + playerOffset) > (car - laneSize)))   // -X-ás
+    (((currentPlayerLane[0] * laneSize) + playerOffset) < (car + (laneSize * 1.15))) && // +X-ás
+    (((currentPlayerLane[0] * laneSize) + playerOffset) > (car - (laneSize * 1.15))))   // -X-ás
   {
     if (goingUp) currentPlayerLane[1] = -gameBounds; // Ef leikmaður er á leið upp lifnar hann við niðri.
     else currentPlayerLane[1] = gameBounds;          // Ef leikmaður er á leið niður lifnar hann við uppi.
