@@ -17,17 +17,19 @@
           vec4 tpos = vPosition;
           tpos.y = 1.0 - mod(0.0015*time + tpos.y+1.0, 2.0);
 
-          float circle = pow(tpos.x, 2.0) + pow(tpos.y, 2.0);
+          bool cross = (((tpos.y > -0.10) && (tpos.y < 0.10)) || 
+                        ((tpos.x > -0.10) && (tpos.x < 0.10)));
 
-          bool belowY = (tpos.y < 0.0) && 
-                        (circle > pow(0.6, 2.0));
+          bool square = (((tpos.y < -0.20) || (tpos.y > 0.20)) && 
+                         ((tpos.x < -0.20) || (tpos.x > 0.20)));
 
-          bool aboveY = (tpos.y > 0.0) && 
-                        (circle < pow(0.6, 2.0));
-
-          if (belowY || aboveY)
+          if (cross)
           {
             colour = vec4(1.0, 0.0, 0.0, 1.0);
+          }
+          else if (square)
+          {
+            colour = vec4(0.0, 0.0, 1.0, 1.0);
           }
           else
           {
@@ -79,7 +81,7 @@
     <nav>
         <ul>
           <li>
-            <a href="./Falling_Points_Iceland.html">Íslenski Fáninn</a>
+            <a href="./Falling_Points_Greenland.html">Grænlenski Fáninn</a>
           </li>
           <li>
             <a href="../index.html">Til Baka</a>
