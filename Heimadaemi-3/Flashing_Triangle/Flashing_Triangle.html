@@ -21,6 +21,7 @@
       void
       main()
       { 
+          // Nýtum okkur að sin, cos og tan halda sér innan -1 - 1, og færum bilið þannig að það sé innan 0, 1.
           gl_FragColor = vec4( 1.0 * ((sin(time) * 0.5) + 0.5), 
                                1.0 * ((cos(time) * 0.5) + 0.5), 
                                1.0 * ((tan(time) * 0.5) + 0.5), 

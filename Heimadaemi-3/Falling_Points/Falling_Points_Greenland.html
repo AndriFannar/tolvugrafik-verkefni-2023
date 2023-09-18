@@ -15,22 +15,29 @@
       {
       	gl_PointSize = 3.0;
           vec4 tpos = vPosition;
+
+          // Fallandi punktar.
           tpos.y = 1.0 - mod(0.0015*time + tpos.y+1.0, 2.0);
 
+          // Reiknar jöfnu hrings.
           float circle = pow(tpos.x, 2.0) + pow(tpos.y, 2.0);
 
+          // Punktar fyrir neðan y-ás og fyrir utan hring með radíus 0.6 frá miðju.
           bool belowY = (tpos.y < 0.0) && 
                         (circle > pow(0.6, 2.0));
 
+          // Punktar fyrir ofan y-ás og innan hrings með radíus 0.6 frá miðju.
           bool aboveY = (tpos.y > 0.0) && 
                         (circle < pow(0.6, 2.0));
 
           if (belowY || aboveY)
           {
+            // Ef annað hvort boolean gildið er uppfyllt er punkturinn rauður.
             colour = vec4(1.0, 0.0, 0.0, 1.0);
           }
           else
           {
+            // Annars er hann hvítur.
             colour = vec4(1.0, 1.0, 1.0, 1.0);
           }
 

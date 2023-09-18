@@ -14,29 +14,36 @@
       void main()
       {
       	gl_PointSize = 3.0;
-          vec4 tpos = vPosition;
-          tpos.y = 1.0 - mod(0.0015*time + tpos.y+1.0, 2.0);
+        vec4 tpos = vPosition;
 
-          bool cross = (((tpos.y > -0.10) && (tpos.y < 0.10)) || 
-                        ((tpos.x > -0.10) && (tpos.x < 0.10)));
+        // Fallandi punktar.
+        tpos.y = 1.0 - mod(0.0015*time + tpos.y+1.0, 2.0);
 
-          bool square = (((tpos.y < -0.20) || (tpos.y > 0.20)) && 
-                         ((tpos.x < -0.20) || (tpos.x > 0.20)));
+        // Punktar innan krossins í miðju íslenska fánans.
+        bool cross = (((tpos.y > -0.10) && (tpos.y < 0.10)) || 
+                      ((tpos.x > -0.10) && (tpos.x < 0.10)));
 
-          if (cross)
-          {
-            colour = vec4(1.0, 0.0, 0.0, 1.0);
-          }
-          else if (square)
-          {
-            colour = vec4(0.0, 0.0, 1.0, 1.0);
-          }
-          else
-          {
-            colour = vec4(1.0, 1.0, 1.0, 1.0);
-          }
+        // Punktar innan kassanna í hornunum á íslenska fánanum.
+        bool square = (((tpos.y < -0.20) || (tpos.y > 0.20)) && 
+                        ((tpos.x < -0.20) || (tpos.x > 0.20)));
 
-          gl_Position = tpos;
+        if (cross)
+        {
+          // Ef punktar eru innan krossins þá litast þeir rauðir.
+          colour = vec4(1.0, 0.0, 0.0, 1.0);
+        }
+        else if (square)
+        {
+          // Ef punktar eru innan kassanna þá litast þeir bláir.
+          colour = vec4(0.0, 0.0, 1.0, 1.0);
+        }
+        else
+        {
+          // Ef ekkert af ofantöldu fer í gegn eru punktarnir hvítir.
+          colour = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+
+        gl_Position = tpos;
 
       }
     </script>
