@@ -44,7 +44,7 @@ window.onload = function init()
 
     initTime = Date.now();
 
-    const renderScreen = setInterval(render, 100);
+    const renderScreen = setInterval(render, 1000);
 };
 
 

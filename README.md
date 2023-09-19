@@ -10,6 +10,10 @@ Heimadæmi & verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslan
     * T-eikning
     * Litríkir Þríhyrningar
     * Teppi Sierpinskis
+* Heimadæmi 3
+    * Blikkandi Þríhyrningur
+    * Fallandi Punktar
+    * Breakout
       
  ## Verkefni:
  * Verkefni 1
