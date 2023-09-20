@@ -21,11 +21,15 @@
       void
       main()
       { 
-          // Nýtum okkur að sin, cos og tan halda sér innan -1 - 1, og færum bilið þannig að það sé innan 0, 1.
-          gl_FragColor = vec4( 1.0 * ((sin(time) * 0.5) + 0.5), 
-                               1.0 * ((cos(time) * 0.5) + 0.5), 
-                               1.0 * ((tan(time) * 0.5) + 0.5), 
-                               1.0 );
+        float blink = mod(time, 2.0);
+        
+        if (blink < 1.0) {
+          // Rauður.
+          gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); 
+        } else {
+          // Grænn.
+          gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); // Green color
+        }
       }
     </script>
 

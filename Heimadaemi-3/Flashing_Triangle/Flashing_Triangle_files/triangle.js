@@ -9,6 +9,8 @@ var points;
 
 var timeLoc;
 var initTime;
+var then = 0;
+var time = 0;
 
 window.onload = function init()
 {
@@ -43,15 +45,18 @@ window.onload = function init()
     timeLoc = gl.getUniformLocation( program, "time" );
 
     initTime = Date.now();
-
-    const renderScreen = setInterval(render, 1000);
+    
+    render();
 };
 
 
 function render()  
 {
-    let time = Date.now() - initTime
+    time = (Date.now() - initTime) * 0.001;
+    
     gl.uniform1f( timeLoc, time)
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, 3 );
+
+    window.requestAnimFrame(render);
 }
