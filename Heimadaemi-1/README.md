@@ -1,4 +1,4 @@
-# Verkefni 1
+# Heimadæmi 1
 
 ## Skarpur Sierpinski Þríhyrningur
 * Ná í útgáfu 1 af þríhyrningi Sierpinskis

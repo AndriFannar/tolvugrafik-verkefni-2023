@@ -1,4 +1,4 @@
-# Verkefni 2
+# Heimadæmi 3
 
 ## Blikkandi Þríhyrningur
 * Breyta sýnisforritinu Þríhyrningur

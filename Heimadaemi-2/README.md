@@ -1,4 +1,4 @@
-# Verkefni 2
+# Heimadæmi 2
 
 ## Löng Leið að Sierpinski
 * Breyta sýniforritinu gasket1
