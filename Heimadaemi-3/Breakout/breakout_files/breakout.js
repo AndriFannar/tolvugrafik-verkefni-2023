@@ -25,8 +25,6 @@ var boxRad = 0.05;
 // Staðsetning punktana.
 var vertices;
 
-var test;
-
 window.onload = function init() {
 
     canvas = document.getElementById( "gl-canvas" );
@@ -102,14 +100,6 @@ window.onload = function init() {
 
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(vertices));
     } );
-
-    test = vec4();
-    test = mult(test, translate(10, 5, 0));
-    test = mult(test, rotateZ(90));
-    test = mult(test, scalem(0.5, 0, 0));
-    test = mult(test, translate(-10, -5, 0));
-
-    console.log(test[0]);
 
     render();
 }

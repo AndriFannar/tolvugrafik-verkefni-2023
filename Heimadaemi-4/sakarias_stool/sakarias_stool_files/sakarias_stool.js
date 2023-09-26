@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////
-//    Sýnidæmi í Tölvugrafík
-//     Búum til bókstafinn H úr þremur teningum
+//    Heimadæmi 4-4 í Tölvugrafík.
+//     Búum til kollustólinn SAKARIAS úr fimm ferhyrningum.
 //
-//    Hjálmtýr Hafsteinsson, september 2023
+//    Andri Fannar Kristjánsson, 26. september 2023.
 /////////////////////////////////////////////////////////////////
 var canvas;
 var gl;
@@ -137,19 +137,38 @@ function render()
 
     // Build the letter H...
     // First the right leg
-    mv1 = mult( mv, translate( -0.3, 0.0, 0.0 ) );
-    mv1 = mult( mv1, scalem( 0.1, 1.0, 0.1 ) );
+    mv1 = mult( mv, translate( -0.235, 0.0, -0.175) );
+    mv1 = mult( mv1, rotateX(2));
+    mv1 = mult( mv1, rotateZ(-2));
+    mv1 = mult( mv1, scalem( 0.05, 0.40, 0.05 ) );
     gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
     // Then the left leg
-    mv1 = mult( mv, translate( 0.3, 0.0, 0.0 ) );
-    mv1 = mult( mv1, scalem( 0.1, 1.0, 0.1 ) );
+    mv1 = mult( mv, translate( 0.235, 0.0, 0.175) );
+    mv1 = mult( mv1, rotateX(-2));
+    mv1 = mult( mv1, rotateZ(2));
+    mv1 = mult( mv1, scalem( 0.05, 0.40, 0.05 ) );
+    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+
+    mv1 = mult( mv, translate( 0.235, 0.0, -0.175) );
+    mv1 = mult( mv1, rotateX(2));
+    mv1 = mult( mv1, rotateZ(2));
+    mv1 = mult( mv1, scalem( 0.05, 0.40, 0.05 ) );
+    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+
+    mv1 = mult( mv, translate( -0.235, 0.0, 0.175) );
+    mv1 = mult( mv1, rotateX(-2));
+    mv1 = mult( mv1, rotateZ(-2));
+    mv1 = mult( mv1, scalem( 0.05, 0.40, 0.05 ) );
     gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
     // Finally the middle bar (no translation necessary)
-    mv1 = mult( mv, scalem( 0.5, 0.1, 0.1 ) );
+    mv1 = mult( mv, translate( 0.0, 0.234, 0.0) );
+    mv1 = mult( mv1, scalem( 0.51, 0.09, 0.39 ) );
     gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
