@@ -7,17 +7,25 @@
 var canvas;
 var gl;
 
+// Fjöldi hnúta
 var numVertices  = 36;
 
+// Fylki fyrir hnúta og liti.
 var points = [];
 var colors = [];
 
-var movement = false;     // Do we rotate?
-var spinX = 0;
-var spinY = 0;
+// Er notandinn að snúa hlutnum.
+var movement = false;
+
+// Upphafsstaða snúnings.
+var spinX = -30;
+var spinY = 40;
+
+// Staðsetning bendils.
 var origX;
 var origY;
 
+// Uniform breyta í hnútalitarann.
 var matrixLoc;
 
 window.onload = function init()
@@ -34,9 +42,7 @@ window.onload = function init()
     
     gl.enable(gl.DEPTH_TEST);
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
+    // Hlaða inn liturum.
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
     
@@ -58,19 +64,24 @@ window.onload = function init()
 
     matrixLoc = gl.getUniformLocation( program, "rotation" );
 
-    //event listeners for mouse
+    // Músahreyfing
     canvas.addEventListener("mousedown", function(e){
+        // Ef ýtt er með mús byrjar hreyfing.
         movement = true;
         origX = e.offsetX;
         origY = e.offsetY;
-        e.preventDefault();         // Disable drag and drop
+
+        // Koma í veg fyrir sjálfgefna virkni, að draga og sleppa.
+        e.preventDefault();
     } );
 
     canvas.addEventListener("mouseup", function(e){
+        // Ef músarhnappi er sleppt hættir hreyfing.
         movement = false;
     } );
 
     canvas.addEventListener("mousemove", function(e){
+        // Ef músin hreyfist og músarhnappur er niðri snýst hluturinn.
         if(movement) {
     	    spinY = ( spinY + (origX - e.offsetX) ) % 360;
             spinX = ( spinX + (origY - e.offsetY) ) % 360;
@@ -82,6 +93,9 @@ window.onload = function init()
     render();
 }
 
+/**
+ * Býr til tening.
+ */
 function colorCube()
 {
     quad( 1, 0, 3, 2 );
@@ -92,6 +106,14 @@ function colorCube()
     quad( 5, 4, 0, 1 );
 }
 
+/**
+ * Býr til eina hlið á ferhyrning.
+ * 
+ * @param {*} a Einn hnútur ferhyrningsins
+ * @param {*} b Einn hnútur ferhyrningsins
+ * @param {*} c Einn hnútur ferhyrningsins
+ * @param {*} d Einn hnútur ferhyrningsins
+ */
 function quad(a, b, c, d) 
 {
     var vertices = [
@@ -131,12 +153,13 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    // Reiknar snúning hlutarins.
     var mv = mat4();
     mv = mult( mv, rotateX(spinX) );
     mv = mult( mv, rotateY(spinY) ) ;
 
-    // Build the letter H...
-    // First the right leg
+    // Setja saman kollinn.
+    // Fremri vinstri fóturinn.
     mv1 = mult( mv, translate( -0.3525, 0.0, -0.2625) );
     mv1 = mult( mv1, rotateX(3));
     mv1 = mult( mv1, rotateZ(-3));
@@ -144,21 +167,7 @@ function render()
     gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
-    // Then the left leg
-    mv1 = mult( mv, translate( 0.3525, 0.0, 0.2625) );
-    mv1 = mult( mv1, rotateX(-3));
-    mv1 = mult( mv1, rotateZ(3));
-    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-
-    mv1 = mult( mv, translate( 0.3525, 0.0, -0.2625) );
-    mv1 = mult( mv1, rotateX(3));
-    mv1 = mult( mv1, rotateZ(3));
-    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-
+    // Aftari vinstri fóturinn.
     mv1 = mult( mv, translate( -0.3525, 0.0, 0.2625) );
     mv1 = mult( mv1, rotateX(-3));
     mv1 = mult( mv1, rotateZ(-3));
@@ -166,7 +175,23 @@ function render()
     gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
-    // Finally the middle bar (no translation necessary)
+    // Fremri hægri fóturinn.
+    mv1 = mult( mv, translate( 0.3525, 0.0, -0.2625) );
+    mv1 = mult( mv1, rotateX(3));
+    mv1 = mult( mv1, rotateZ(3));
+    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
+    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+
+    // Aftari hægri fóturinn.
+    mv1 = mult( mv, translate( 0.3525, 0.0, 0.2625) );
+    mv1 = mult( mv1, rotateX(-3));
+    mv1 = mult( mv1, rotateZ(3));
+    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
+    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+
+    // Sessa kollsins.
     mv1 = mult( mv, translate( 0.0, 0.351, 0.0) );
     mv1 = mult( mv1, scalem( 0.765, 0.135, 0.585 ) );
     gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
