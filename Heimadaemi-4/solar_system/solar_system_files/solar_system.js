@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////
 //    Heimadæmi 4-4 í Tölvugrafík.
-//     Búum til kollustólinn SAKARIAS úr fimm ferhyrningum.
+//     Sólkerfi, þar sem hægt er að auka/minnka hraða snúnings jarðar
+//     og fjarlægð frá sólu.
 //
 //    Andri Fannar Kristjánsson, 26. september 2023.
 /////////////////////////////////////////////////////////////////
@@ -25,27 +26,41 @@ var spinY = 40;
 var origX;
 var origY;
 
+// Snúningur jarðarinnar um sólina.
+var rotYear = 0.0;
+var rotYearSpeed = 1.0;
+
+// Fjarlægð jarðar frá sólinni.
+var sunDistance = 1.8;
+
+// Snúningur jarðarinnar um sig sjálfa.
+var rotDay = 0.0;
+
+// Halli jarðar.
+var earthTilt = 23.5;
+
 // Uniform breyta í hnútalitarann.
 var matrixLoc;
+
 
 window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
-    
+
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     colorCube();
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-    
+    gl.clearColor( 0.9, 1.0, 1.0, 1.0 );
+
     gl.enable(gl.DEPTH_TEST);
 
     // Hlaða inn liturum.
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
-    
+
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
@@ -89,7 +104,45 @@ window.onload = function init()
             origY = e.offsetY;
         }
     } );
-    
+
+    canvas.addEventListener("mousemove", function(e){
+        // Ef músin hreyfist og músarhnappur er niðri snýst hluturinn.
+        if(movement) {
+    	    spinY = ( spinY + (origX - e.offsetX) ) % 360;
+            spinX = ( spinX + (origY - e.offsetY) ) % 360;
+            origX = e.offsetX;
+            origY = e.offsetY;
+        }
+    } );
+
+    window.addEventListener("keydown", function(e){
+        switch (e.key) 
+        {
+        case "ArrowUp":
+            // Ef ýtt er á upp örvahnappinn hraðast á snúning jarðar um sólina.
+            rotYearSpeed += 0.01;       
+            break;
+
+
+        case "ArrowDown":
+            // Ef ýtt er á niður örvahnappinn hægist á snúning jarðar um sólina.
+            rotYearSpeed -= 0.01;       
+            break;
+
+
+        case "ArrowLeft":
+            // Ef ýtt er á vinstri örvahnappinn færist jörðin nær sólinni.
+            sunDistance -= 0.005;
+            break;
+
+
+        case "ArrowRight":
+            // Ef ýtt er á hægri örvahnappinn færist jörðin fjær sólinni.
+            sunDistance += 0.005;
+            break;
+        }  
+    } );
+
     render();
 }
 
@@ -148,7 +201,6 @@ function quad(a, b, c, d)
     }
 }
 
-
 /**
  * Teikna á teikniborðið.
  */
@@ -156,50 +208,27 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Reiknar snúning hlutarins.
+    rotDay += 10.0;
+    rotYear += 0.5 * rotYearSpeed;
+
     var mv = mat4();
     mv = mult( mv, rotateX(spinX) );
-    mv = mult( mv, rotateY(spinY) ) ;
+    mv = mult( mv, rotateY(spinY) );
 
-    // Setja saman kollinn.
-    // Fremri vinstri fóturinn.
-    mv1 = mult( mv, translate( -0.3525, 0.0, -0.2625) );
-    mv1 = mult( mv1, rotateX(3));
-    mv1 = mult( mv1, rotateZ(-3));
-    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
+    // teikna "sólina"
+    mv = mult( mv, scalem( 0.5, 0.5, 0.5 ) );
+    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
-    // Aftari vinstri fóturinn.
-    mv1 = mult( mv, translate( -0.3525, 0.0, 0.2625) );
-    mv1 = mult( mv1, rotateX(-3));
-    mv1 = mult( mv1, rotateZ(-3));
-    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    // teikna "jörðina"
+    mv = mult( mv, rotateY( rotYear ) );
+    mv = mult( mv, translate( sunDistance, 0.0, 0.0 ) );
+    mv = mult( mv, rotateZ( earthTilt ) );
+    mv = mult( mv, rotateY( rotDay ) );
 
-    // Fremri hægri fóturinn.
-    mv1 = mult( mv, translate( 0.3525, 0.0, -0.2625) );
-    mv1 = mult( mv1, rotateX(3));
-    mv1 = mult( mv1, rotateZ(3));
-    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-
-    // Aftari hægri fóturinn.
-    mv1 = mult( mv, translate( 0.3525, 0.0, 0.2625) );
-    mv1 = mult( mv1, rotateX(-3));
-    mv1 = mult( mv1, rotateZ(3));
-    mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-
-    // Sessa kollsins.
-    mv1 = mult( mv, translate( 0.0, 0.351, 0.0) );
-    mv1 = mult( mv1, scalem( 0.765, 0.135, 0.585 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
+    mv = mult( mv, scalem( 0.2, 0.2, 0.2 ) );
+    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv));
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
     requestAnimFrame( render );
 }
-
