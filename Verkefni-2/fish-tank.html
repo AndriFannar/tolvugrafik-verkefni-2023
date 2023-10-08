@@ -7,17 +7,12 @@
 
     <script id="vertex-shader" type="x-shader/x-vertex">
       attribute vec4 vPosition;
-      uniform vec2 translation;
-      uniform vec2 sinCos;
+      uniform mat4 projection;
+      uniform mat4 modelView;
 
-      void
-      main()
+      void main()
       {
-          vec4 newPos = vPosition;
-          newPos.x = sinCos[1] * vPosition.x - sinCos[0] * vPosition.y;
-          newPos.y = sinCos[1] * vPosition.y - sinCos[0] * vPosition.x;
-          newPos.xy += translation;
-          gl_Position = newPos;
+        gl_Position = projection * modelView * vPosition;
       }
     </script>
 
