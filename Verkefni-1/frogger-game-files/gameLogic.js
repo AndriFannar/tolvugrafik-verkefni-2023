@@ -12,7 +12,7 @@ var MAX_LIVES = 3;
 var MAX_POINTS = 10;
 
 // Hraði bíla.
-var CAR_SPEED_MULTIPLIER = 0.03;
+var CAR_SPEED_MULTIPLIER = 0.06;
 
 /* ----------------------------------- */
 
