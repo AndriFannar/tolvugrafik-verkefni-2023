@@ -9,6 +9,7 @@
 var canvas;
 var gl;
 
+var vColour;
 
 
 /**
@@ -35,12 +36,21 @@ window.onload = function init()
     gl.useProgram(program);
 
     // Hlaða gögnunum inn í grafíkkortið.
-    var bufferId = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    var colourBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, colourBuffer );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(cubeColours), gl.STATIC_DRAW );
+
+    vColour = gl.getAttribLocation( program, vColour );
+    gl.vertexAttribPointer( vColour, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vColour );
+
+    var vertexBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, vertexBuffer );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(cubePoints), gl.STATIC_DRAW );
 
     // Tengja litarabreyturnar við gagnabufferinn.
     var vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
     // Teikna á skjáinn.
