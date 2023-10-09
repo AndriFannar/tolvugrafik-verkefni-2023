@@ -5,11 +5,13 @@ function createCube(size, colours)
 {
     let sideColours = [];
 
+    console.log(colours.length)
+
     if (colours.length === 1)
     {
         for(let i = 0; i < 6; i++)
         {
-            sideColours.push(colours);
+            sideColours.push(colours[0]);
         }
     }
     else
@@ -33,14 +35,14 @@ function quad(a, b, c, d, size, sideColour)
         vec3( size,  size,  size),
         vec3( size, -size,  size),
         vec3(-size, -size, -size),
-        vec3(-size,  size,  size),
-        vec3( size,  size,  size),
-        vec3( size, -size,  size)
+        vec3(-size,  size, -size),
+        vec3( size,  size, -size),
+        vec3( size, -size, -size)
     ]
 
     var indices = [ a, b, c, a, c, d];
 
-    for (var i = 0; i < indices.length; ++i)
+    for (let i = 0; i < indices.length; ++i)
     {
         cubePoints.push(vertices[indices[i]]);
         cubeColours.push(sideColour);
