@@ -1,50 +1,61 @@
-var cubePoints = [];
-var cubeColours = [];
-
-function createCube(size, colours)
+class Cube
 {
-    let sideColours = [];
-
-    console.log(colours.length)
-
-    if (colours.length === 1)
+    constructor(size, colours)
     {
-        for(let i = 0; i < 6; i++)
+        this.cubePoints = [];
+        this.cubeColours = [];
+        this.sideColours = [];
+
+        if (colours.length === 1)
         {
-            sideColours.push(colours[0]);
+            for(let i = 0; i < 6; i++)
+            {
+                this.sideColours.push(colours[0]);
+            }
+        }
+        else
+        {
+            this.sideColours = colours;
+        }
+
+        this.#quad(1, 0, 3, 2, size, this.sideColours[0]);
+        this.#quad(2, 3, 7, 6, size, this.sideColours[1]);
+        this.#quad(3, 0, 4, 7, size, this.sideColours[2]);
+        this.#quad(6, 5, 1, 2, size, this.sideColours[3]);
+        this.#quad(4, 5, 6, 7, size, this.sideColours[4]);
+        this.#quad(5, 4, 0, 1, size, this.sideColours[5]);
+    }
+
+    #quad(a, b, c, d, size, sideColour)
+    {
+        let vertices = [
+            vec4(-size, -size,  size, 1),
+            vec4(-size,  size,  size, 1),
+            vec4( size,  size,  size, 1),
+            vec4( size, -size,  size, 1),
+            vec4(-size, -size, -size, 1),
+            vec4(-size,  size, -size, 1),
+            vec4( size,  size, -size, 1),
+            vec4( size, -size, -size, 1)
+        ]
+
+        let indices = [ a, b, c, a, c, d];
+
+        for (let i = 0; i < indices.length; ++i)
+        {
+            this.cubePoints.push(vertices[indices[i]]);
+            this.cubeColours.push(sideColour);
         }
     }
-    else
+
+    get points()
     {
-        sideColours = colours;
+        return this.cubePoints;
     }
 
-    quad(1, 0, 3, 2, size, sideColours[0]);
-    quad(2, 3, 7, 6, size, sideColours[1]);
-    quad(3, 0, 4, 7, size, sideColours[2]);
-    quad(6, 5, 1, 2, size, sideColours[3]);
-    quad(4, 5, 6, 7, size, sideColours[4]);
-    quad(5, 4, 0, 1, size, sideColours[5]);
-}
-
-function quad(a, b, c, d, size, sideColour)
-{
-    var vertices = [
-        vec3(-size, -size,  size),
-        vec3(-size,  size,  size),
-        vec3( size,  size,  size),
-        vec3( size, -size,  size),
-        vec3(-size, -size, -size),
-        vec3(-size,  size, -size),
-        vec3( size,  size, -size),
-        vec3( size, -size, -size)
-    ]
-
-    var indices = [ a, b, c, a, c, d];
-
-    for (let i = 0; i < indices.length; ++i)
+    get colours()
     {
-        cubePoints.push(vertices[indices[i]]);
-        cubeColours.push(sideColour);
+        return this.cubeColours;
     }
 }
+
