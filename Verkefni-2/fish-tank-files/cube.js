@@ -6,6 +6,8 @@ class Cube
         this.cubeColours = [];
         this.sideColours = [];
 
+        this.bounds = size;
+
         if (colours.length === 1)
         {
             for(let i = 0; i < 6; i++)
@@ -56,6 +58,11 @@ class Cube
     get colours()
     {
         return this.cubeColours;
+    }
+
+    get cubeBounds()
+    {
+        return this.bounds;
     }
 }
 

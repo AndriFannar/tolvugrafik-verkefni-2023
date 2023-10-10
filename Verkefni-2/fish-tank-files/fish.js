@@ -1,6 +1,8 @@
 class Fish
 {
-    constructor(scale, bodyColour, tailColour, finColour, tailIncrement = 2.0, maxTailRotation = 35, finIncrement = 1.0, maxFinRotation = 25)
+    constructor(scale = 1, bodyColour, tailColour, finColour,
+                tailIncrement = 2.0, maxTailRotation = 35, finIncrement = 1.0, maxFinRotation = 25,
+                initDirection = vec3(0.01, 0, 0), initPos = vec3(0, 0, 0), maxSpeed = 1)
     {
         this.fishBodyPoints = [
             vec4(-0.50 * scale,  0.0         ,  0.0, 1.0),
@@ -48,6 +50,10 @@ class Fish
         this.finRot = 0;
         this.finIncrement = finIncrement;
         this.maxFinRotation = maxFinRotation;
+
+        this.currentDir = initDirection;
+        this.currentPos = initPos;
+        this.maxSpeed = maxSpeed * scale;
     }
 
     get points()
@@ -98,5 +104,42 @@ class Fish
         }
 
         return this.finRot;
+    }
+
+
+    #randomizeDirection()
+    {
+        //let changeX =
+
+        //let newDirX = this.maxSpeed / this.currentDir.x
+    }
+
+
+    get currentDirection()
+    {
+        return this.currentDir;
+    }
+
+
+    set currentDirection(newDirection)
+    {
+        this.currentDir = newDirection;
+    }
+
+
+    get currentPosition()
+    {
+        return this.currentPos.slice();
+    }
+
+
+    get move()
+    {
+        for (let i = 0; i < 3; i++)
+        {
+            this.currentPos[i] += this.currentDir[i];
+        }
+
+        return this.currentPos.slice();
     }
 }
