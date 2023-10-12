@@ -4,7 +4,7 @@ var spinY = 0;
 var origX;
 var origY;
 var zDist;
-let noFish = 50;
+let noFish = 5;
 
 let fishArray = [];
 let cube;
@@ -16,11 +16,11 @@ function initScene()
 
     for (let i = 0; i < noFish; i++)
     {
-        fishArray.push(new Fish(randomBetw(0.1, 0.05), [randomVec4(), randomVec4(), randomVec4()],
-            randomVec3(0.01, -0.01), randomVec3(1, -1)));
+        fishArray.push(new Fish(/*randomBetw(0.1, 0.05)*/0.5, [randomVec4(), randomVec4(), randomVec4()],
+            randomVec3(0.01, -0.01), randomVec3(1, -1), 0.01));
     }
 
-    fishTank = new FishTank(fishArray, cube);
+    fishTank = new FishTank(fishArray, cube, 1, 60, 0.1, 1, 1);
 
     resetBuffer(cube.points, fishArray[0].points);
 }
@@ -71,7 +71,8 @@ function changeParams()
 {
     document.getElementById("changeParams").onclick = function()
     {
-        noFish = document.getElementById("noFish").value;
+        let newFish = document.getElementById("noFish").value;
+        if (newFish >= 1) noFish = newFish;
         initScene();
     };
 

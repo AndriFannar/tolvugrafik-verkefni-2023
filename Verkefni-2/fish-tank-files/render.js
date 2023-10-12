@@ -61,7 +61,8 @@ window.onload = function init()
     changeParams();
 
     // Teikna á skjáinn.
-    render();
+    //render();
+    const renderScreen = setInterval(render, 50);
 };
 
 
@@ -80,6 +81,8 @@ function resetBuffer(cubePoints, fishPoints)
 
 function renderFish(fish, mv)
 {
+    fishTank.calculateFlocking();
+
     let normDirection = normalize(fish.currentDirection);
     let yaw = Math.atan2(-normDirection[2], normDirection[0]);
     let pitch = Math.asin(normDirection[1]);
@@ -87,6 +90,8 @@ function renderFish(fish, mv)
     mv = mult(mv, translate(fish.move));
     if (!isNaN(yaw)) mv = mult(mv, rotateY(yaw * (180/Math.PI)));
     if (!isNaN(pitch))mv = mult(mv, rotateZ(pitch * (180/Math.PI)));
+
+    fishTank.checkBounds(fish);
 
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
 
@@ -154,8 +159,6 @@ function render()
     mv = mult( mv, rotateX(spinX) );
     mv = mult( mv, rotateY(spinY) );
 
-    fishTank.checkBounds();
-
     for(let i = 0; i < noFish; i++)
     {
         renderFish(fishArray[i], mv);
@@ -163,5 +166,5 @@ function render()
 
     renderCube(mv);
 
-    requestAnimFrame( render );
+    //requestAnimFrame( render );
 }

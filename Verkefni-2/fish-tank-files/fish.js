@@ -45,6 +45,8 @@ class Fish
         this.currentDir = initDirection;
         this.currentPos = initPos;
         this.maxSpeed = maxSpeed * scale;
+
+        console.log(this.bounds);
     }
 
     get points()
@@ -98,14 +100,6 @@ class Fish
     }
 
 
-    #randomizeDirection()
-    {
-        //let changeX =
-
-        //let newDirX = this.maxSpeed / this.currentDir.x
-    }
-
-
     get currentDirection()
     {
         return this.currentDir.slice();
@@ -114,7 +108,10 @@ class Fish
 
     set currentDirection(newDirection)
     {
-        this.currentDir = newDirection.slice();
+        let scaling = this.maxSpeed / length(newDirection);
+        this.currentDir[0] = newDirection[0] * this.maxSpeed;
+        this.currentDir[1] = newDirection[1] * this.maxSpeed;
+        this.currentDir[2] = newDirection[2] * this.maxSpeed;
     }
 
 
@@ -144,5 +141,21 @@ class Fish
     get boundingBox()
     {
         return this.bounds.slice();
+    }
+
+
+    get projectedBoundingBox()
+    {
+        return this.bounds.map((bound, i) =>
+        {
+            const projection = add(this.currentPos, bound);
+
+            for (let j = 0; j < 3; j++)
+            {
+                projection[j] += this.currentDir[j] * bound[i];
+            }
+
+            return projection;
+        });
     }
 }
