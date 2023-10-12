@@ -70,7 +70,6 @@ window.onload = function init()
  */
 function resetBuffer(cubePoints, fishPoints)
 {
-    console.log(cubePoints);
     gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexBuffer );
     gl.bufferData(gl.ARRAY_BUFFER, flatten(cubePoints), gl.STATIC_DRAW);
 
