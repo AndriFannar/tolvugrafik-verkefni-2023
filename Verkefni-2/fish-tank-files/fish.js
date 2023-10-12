@@ -1,8 +1,8 @@
 class Fish
 {
-    constructor(scale = 1, bodyColour, tailColour, finColour,
-                tailIncrement = 2.0, maxTailRotation = 35, finIncrement = 1.0, maxFinRotation = 25,
-                initDirection = vec3(0.01, 0, 0), initPos = vec3(0, 0, 0), maxSpeed = 1)
+    constructor(scale = 1, colours = [vec4(1, 0, 0, 1), vec4(0, 1, 0, 1), vec4(0, 0, 1, 1)],
+                initDirection = vec3(0.01, 0, 0), initPos = vec3(0, 0, 0), maxSpeed = 1,
+                tailIncrement = 2.0, maxTailRotation = 35, finIncrement = 1.0, maxFinRotation = 25)
     {
         this.fishBodyPoints = [
             vec4(-0.50 * scale,  0.0         ,  0.0, 1.0),
@@ -29,19 +29,10 @@ class Fish
             vec4( 0.15 * scale,  0.0          ,  0.2 * scale, 1.0 )
         ];
 
-        this.fishColours = [];
+        this.fishColours = colours;
 
-        for (let i = 0; i < this.fishBodyPoints.length; i++) {
-            this.fishColours.push(bodyColour);
-        }
-
-        for (let i = 0; i < this.fishTailPoints.length; i++) {
-            this.fishColours.push(tailColour);
-        }
-
-        for (let i = 0; i < this.fishFinPoints.length; i++) {
-            this.fishColours.push(finColour);
-        }
+        this.bounds =  [vec3(this.fishBodyPoints[2][0], this.fishBodyPoints[1][0], this.fishFinPoints[5][2]),
+                        vec3(this.fishTailPoints[1][0], this.fishTailPoints[2][1], this.fishFinPoints[1][2])];
 
         this.tailRot = 0;
         this.tailIncrement = tailIncrement;
@@ -117,19 +108,25 @@ class Fish
 
     get currentDirection()
     {
-        return this.currentDir;
+        return this.currentDir.slice();
     }
 
 
     set currentDirection(newDirection)
     {
-        this.currentDir = newDirection;
+        this.currentDir = newDirection.slice();
     }
 
 
     get currentPosition()
     {
         return this.currentPos.slice();
+    }
+
+
+    set currentPosition(newPosition)
+    {
+        this.currentPos = newPosition.slice();
     }
 
 
@@ -141,5 +138,11 @@ class Fish
         }
 
         return this.currentPos.slice();
+    }
+
+
+    get boundingBox()
+    {
+        return this.bounds.slice();
     }
 }

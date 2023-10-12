@@ -9,20 +9,25 @@ class FishTank
 
     #boundsCheck(fish)
     {
-        let currentPos = fish.currentPosition;
+        let currentPos = fish.currentPosition.slice();
+        let boundingBox = fish.boundingBox.slice();
 
-        if ((fish.currentPosition[0] > cube.cubeBounds) || (fish.currentPosition[0] < -cube.cubeBounds))
+        for(let i = 0; i < 3; i++)
         {
-            fish.currentDirection = negate(fish.currentDirection);
+            if ((currentPos[i] + boundingBox[0][i]) >= this.tank.cubeBounds)
+            {
+                let newPos = fish.currentPosition.slice();
+                newPos[i] = (-1 * newPos[i]) - (boundingBox[1][i] + boundingBox[0][i]);
+                fish.currentPosition = newPos.slice();
 
+            }
+            else if ((currentPos[i] + boundingBox[1][i]) <= -this.tank.cubeBounds)
+            {
+                let newPos = fish.currentPosition.slice();
+                newPos[i] = (-1 * newPos[i]) - (boundingBox[0][i] + boundingBox[1][i]);
+                fish.currentPosition = newPos.slice();
+            }
         }
-        /*if((fish.currentPosition.x > cube.cubeBounds || fish.currentPosition.x < -cube.cubeBounds) ||
-           (fish.currentPosition.y > cube.cubeBounds || fish.currentPosition.y < -cube.cubeBounds) ||
-           (fish.currentPosition.z > cube.cubeBounds || fish.currentPosition.z < -cube.cubeBounds))
-        {
-            fish.currentDirection(negate(fish.currentDirection));
-            fish.currentPosition
-        }*/
     }
 
     checkBounds()

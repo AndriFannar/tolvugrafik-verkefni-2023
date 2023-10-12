@@ -6,15 +6,12 @@
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
 
-let noFish = 1;
+let noFish = 50;
 
 var canvas;
 var gl;
 
-var cubeColourBuffer;
 var cubeVertexBuffer;
-
-var fishColourBuffer;
 var fishVertexBuffer;
 
 var fColour;
@@ -42,9 +39,9 @@ window.onload = function init()
 
     for (let i = 0; i < noFish; i++)
     {
-        fishArray.push(new Fish( 0.1, vec4(1, 0, 0, 1), vec4(0, 1, 0, 1), vec4(0, 0, 1, 1)));
+        fishArray.push(new Fish(randomBetw(0.1, 0.05), [randomVec4(), randomVec4(), randomVec4()],
+                                randomVec3(0.01, -0.01), randomVec3(1, -1)));
     }
-
 
     fishTank = new FishTank(fishArray, cube);
 
@@ -86,13 +83,18 @@ window.onload = function init()
     render();
 };
 
+
 function renderFish(fish, mv)
 {
+    let normDirection = normalize(fish.currentDirection);
+    let yaw = Math.atan2(-normDirection[2], normDirection[0]);
+    let pitch = Math.asin(normDirection[1]);
+    console.log("Yaw: ", yaw * (180/Math.PI), ". Pitch: ", pitch * (180/Math.PI));
+
     mv = mult(mv, translate(fish.move));
-    //mv = mult(mv, rotateX(currentDirection.x));
-    //mv = mult(mv, rotateY(currentDirection.y));
-    //mv = mult(mv, rotateZ(currentDirection.z));
-    //mv = mult(mv, translate(negate(currentPos)));
+    if (!isNaN(yaw)) mv = mult(mv, rotateY(yaw * (180/Math.PI)));
+    if (!isNaN(pitch))mv = mult(mv, rotateZ(pitch * (180/Math.PI)));
+
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
 
     gl.uniform4fv(fColour, fish.colours[0]);
@@ -132,12 +134,18 @@ function renderCube(mv)
 {
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
 
-    gl.uniform4fv(fColour, cube.colours[0]);
+    gl.uniform4fv(fColour, cube.lineColour);
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
+
+    gl.drawArrays(gl.LINES, cube.sidePoints.length, cube.linePoints.length);
+
+    gl.uniform4fv(fColour, cube.sideColours[0]);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
 
-    gl.drawArrays(gl.TRIANGLES, 0, cube.points.length);
+    gl.drawArrays(gl.TRIANGLES, 0, cube.sidePoints.length);
 }
 
 
