@@ -5,9 +5,6 @@
  *
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
-
-let noFish = 50;
-
 var canvas;
 var gl;
 
@@ -17,10 +14,6 @@ var fishVertexBuffer;
 var fColour;
 var vPosition;
 var mvLoc;
-
-let fishArray = [];
-let cube;
-let fishTank;
 
 /**
  * Fall sem keyrir í upphafi.
@@ -34,16 +27,6 @@ window.onload = function init()
     if (!gl) {
         alert("WebGL isn't available");
     }
-
-    cube = new Cube(1.5, [vec4(0.4, 0.97, 0.83, 0.1)]);
-
-    for (let i = 0; i < noFish; i++)
-    {
-        fishArray.push(new Fish(randomBetw(0.1, 0.05), [randomVec4(), randomVec4(), randomVec4()],
-                                randomVec3(0.01, -0.01), randomVec3(1, -1)));
-    }
-
-    fishTank = new FishTank(fishArray, cube);
 
     //  Stilla WebGL.
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -63,12 +46,7 @@ window.onload = function init()
 
     // Hlaða gögnunum inn í grafíkkortið.
     cubeVertexBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(cube.points), gl.STATIC_DRAW );
-
     fishVertexBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, fishVertexBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(fishArray[0].points), gl.STATIC_DRAW );
 
     let projectionLoc = gl.getUniformLocation(program, "projection");
     let projection = perspective(90.0, 1.0, 0.1, 100.0);
@@ -79,9 +57,26 @@ window.onload = function init()
 
     mouseMovement(4.0);
 
+    initScene();
+    changeParams();
+
     // Teikna á skjáinn.
     render();
 };
+
+
+/**
+ * Setja gögn inn í bufferinn.
+ */
+function resetBuffer(cubePoints, fishPoints)
+{
+    console.log(cubePoints);
+    gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexBuffer );
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(cubePoints), gl.STATIC_DRAW);
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, fishVertexBuffer );
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(fishPoints), gl.STATIC_DRAW);
+}
 
 
 function renderFish(fish, mv)
@@ -89,7 +84,6 @@ function renderFish(fish, mv)
     let normDirection = normalize(fish.currentDirection);
     let yaw = Math.atan2(-normDirection[2], normDirection[0]);
     let pitch = Math.asin(normDirection[1]);
-    console.log("Yaw: ", yaw * (180/Math.PI), ". Pitch: ", pitch * (180/Math.PI));
 
     mv = mult(mv, translate(fish.move));
     if (!isNaN(yaw)) mv = mult(mv, rotateY(yaw * (180/Math.PI)));
@@ -171,5 +165,4 @@ function render()
     renderCube(mv);
 
     requestAnimFrame( render );
-
 }

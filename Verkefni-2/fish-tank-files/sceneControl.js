@@ -4,6 +4,26 @@ var spinY = 0;
 var origX;
 var origY;
 var zDist;
+let noFish = 50;
+
+let fishArray = [];
+let cube;
+let fishTank;
+
+function initScene()
+{
+    cube = new Cube(1.5, [vec4(0.4, 0.97, 0.83, 0.1)]);
+
+    for (let i = 0; i < noFish; i++)
+    {
+        fishArray.push(new Fish(randomBetw(0.1, 0.05), [randomVec4(), randomVec4(), randomVec4()],
+            randomVec3(0.01, -0.01), randomVec3(1, -1)));
+    }
+
+    fishTank = new FishTank(fishArray, cube);
+
+    resetBuffer(cube.points, fishArray[0].points);
+}
 
 function mouseMovement(zDistOrigin)
 {
@@ -31,6 +51,7 @@ function mouseMovement(zDistOrigin)
     });
 
     canvas.addEventListener("wheel", function (e){
+        e.preventDefault();
         if(e.deltaY > 0.0)
         {
             zDist += 0.2;
@@ -40,4 +61,18 @@ function mouseMovement(zDistOrigin)
             zDist -= 0.2;
         }
     })
+}
+
+
+/**
+ * Breytir stillingum leiksins.
+ */
+function changeParams()
+{
+    document.getElementById("changeParams").onclick = function()
+    {
+        noFish = document.getElementById("noFish").value;
+        initScene();
+    };
+
 }
