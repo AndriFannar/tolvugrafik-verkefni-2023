@@ -42,6 +42,8 @@ function initScene()
             randomVec3(fishMaxSpeed, -fishMaxSpeed), randomVec3((cubeSize - fishSize), -(cubeSize - fishSize)), fishMaxSpeed, 0.001));
     }
 
+    console.log(alignToCentre);
+
     fishTank = new FishTank(fishArray, cube, flockingRadius, flockingAngle, separation, alignment, cohesion, freeWill, alignToCentre);
 
     resetBuffer(cube.points, fishArray[0].points);
@@ -121,7 +123,7 @@ function changeParams()
         alignment = document.getElementById("alignment").value;
         cohesion = document.getElementById("cohesion").value;
         freeWill = document.getElementById("freeWill").value;
-        alignToCentre = document.getElementById("centerAlignment").value;
+        alignToCentre = (document.getElementById("centerAlignment").value * 0.0001);
 
         anaglyph = document.getElementById("anaglyph").checked;
 
