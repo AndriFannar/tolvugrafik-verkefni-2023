@@ -5,15 +5,17 @@
  *
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
-var canvas;
-var gl;
+let canvas;
+let gl;
 
-var cubeVertexBuffer;
-var fishVertexBuffer;
+let cubeVertexBuffer;
+let fishVertexBuffer;
 
-var fColour;
-var vPosition;
-var mvLoc;
+let fColour;
+let vPosition;
+let mvLoc;
+
+let anaglyph = false;
 
 /**
  * Fall sem keyrir í upphafi.
@@ -62,7 +64,7 @@ window.onload = function init()
 
     // Teikna á skjáinn.
     //render();
-    const renderScreen = setInterval(render, 50);
+    const renderScreen = setInterval(render, 10);
 };
 
 
@@ -81,17 +83,16 @@ function resetBuffer(cubePoints, fishPoints)
 
 function renderFish(fish, mv)
 {
+    fishTank.checkBounds(fish);
     fishTank.calculateFlocking();
 
     let normDirection = normalize(fish.currentDirection);
-    let yaw = Math.atan2(-normDirection[2], normDirection[0]);
-    let pitch = Math.asin(normDirection[1]);
+    let yaw = Math.atan2(-normDirection[2], normDirection[0]) * (180/Math.PI) ;
+    let pitch = Math.asin(normDirection[1]) * (180/Math.PI);
 
     mv = mult(mv, translate(fish.move));
-    if (!isNaN(yaw)) mv = mult(mv, rotateY(yaw * (180/Math.PI)));
-    if (!isNaN(pitch))mv = mult(mv, rotateZ(pitch * (180/Math.PI)));
-
-    fishTank.checkBounds(fish);
+    if (!isNaN(yaw)) mv = mult(mv, rotateY(yaw));
+    if (!isNaN(pitch))mv = mult(mv, rotateZ(pitch));
 
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
 

@@ -1,50 +1,46 @@
 class FishTank
 {
-    constructor(fish, cube, flockingRadius = 1, flockingAngle= 1, separation= 1, alignment = 1, cohesion = 1)
+    constructor(fish, cube, flockingRadius = 1, flockingAngle= 1, separation= 1, alignment = 1, cohesion = 1, freeWill = 1, alignToCentre = 0.1)
     {
         this.fish = fish;
         this.tank = cube;
 
         this.flockingRadius = flockingRadius;
-        this.flockingAngle = flockingAngle;
+        this.flockingAngle = flockingAngle * (Math.PI / 180);
 
         this.seperation = separation;
         this.alignment = alignment;
         this.cohesion = cohesion;
+        this.freeWill = freeWill;
+        this.alignToCentre = alignToCentre;
     }
 
 
     checkBounds(fish)
     {
-        let boundingBox = fish.projectedBoundingBox.slice();
+        let fishBoundingBox = fish.boundingBox.slice();
+        let fishPosition = fish.currentPosition.slice();
 
-        for(let i = 0; i < 3; i++)
+        let tankBounds = this.tank.cubeBounds;
+
+        let normDirection = normalize(fish.currentDirection);
+
+        let outermostPoint = vec3(
+            fishPosition[0] + fishBoundingBox[0][0] * normDirection[0],
+            fishPosition[1] + fishBoundingBox[0][0] * normDirection[1],
+            fishPosition[2] + fishBoundingBox[0][0] * normDirection[2]
+        );
+
+        if (((outermostPoint[0] >= tankBounds) || (outermostPoint[0] <= -tankBounds)) ||
+            ((outermostPoint[1] >= tankBounds) || (outermostPoint[1] <= -tankBounds)) ||
+            ((outermostPoint[2] >= tankBounds) || (outermostPoint[2] <= -tankBounds)))
         {
-            if(boundingBox[0][i] >= this.tank.cubeBounds)
-            {
-                console.log(boundingBox);
-                let newPos = fish.currentPosition.slice();
-                newPos[i] = -this.tank.cubeBounds - boundingBox[1][i];
-                fish.currentPosition = newPos;
-
-                console.log("Fish has instersected bounds on coordinate ", i, ", where the calculated position is ", boundingBox[0][i], ", with cube bounds ", this.tank.cubeBounds, ". New position is calculated as ", newPos);
-
-
-            }
-            else if (boundingBox[1][i] <= -this.tank.cubeBounds)
-            {
-                let newPos = fish.currentPosition.slice();
-                newPos[i] = this.tank.cubeBounds + boundingBox[1][i];
-                fish.currentPosition = newPos;
-
-                console.log("Fish has instersected bounds on coordinate ", i, ", where the calculated position is ", boundingBox[0][i], ", with cube bounds ", -this.tank.cubeBounds, ". New position is calculated as ", newPos);
-            }
+            fish.currentPosition = vec3(
+                -1 * fishPosition[0],
+                -1 * fishPosition[1],
+                -1 * fishPosition[2]
+            );
         }
-    }
-
-    #angleBetweenVectors(vec1, vec2)
-    {
-        return Math.acos((dot(vec1,  vec2) / (length(vec1) * length(vec2))));
     }
 
     #distanceToFish(referenceFish, fish)
@@ -66,8 +62,9 @@ class FishTank
                 distToFish = this.#distanceToFish(referenceFish, fish);
 
                 if ((length(distToFish) <= this.flockingRadius) &&
-                    (this.#angleBetweenVectors(referenceFish.currentDirection, distToFish) <= this.flockingAngle))
+                    (angleBetweenVectors(referenceFish.currentDirection, distToFish) <= this.flockingAngle))
                 {
+                    console.log("Angle: ", angleBetweenVectors(referenceFish.currentDirection, distToFish));
                     neighborhood.push(fish);
                 }
             }
@@ -80,7 +77,7 @@ class FishTank
     {
         let neighborhood = [];
 
-        let fishDist;
+
 
         let fishSeparation;
         let fishAlignment;
@@ -92,19 +89,31 @@ class FishTank
         {
             neighborhood = this.#findNeighbors(referenceFish);
 
-            fishSeparation = vec3(this.flockingRadius, this.flockingRadius, this.flockingRadius);
+            fishSeparation = vec3(0, 0, 0);
             fishAlignment = vec3(0, 0, 0);
             fishCohesion = vec3(0, 0, 0);
 
-            //console.log("Fish ", referenceFish, " has ", neighborhood.length, " neighbors: ", neighborhood);
+            newDirection = vec3(0, 0, 0);
+
+            let freeWillDir = referenceFish.currentDirection;
+            let randomDev = randomVec3(0.0001, -0.0001);
+
+            let toCentre = normalize(negate(referenceFish.currentPosition));
+
+            freeWillDir = mix(freeWillDir, toCentre, this.alignToCentre);
+
+            for(let i = 0; i < 3; i++)
+            {
+                freeWillDir[i] = (freeWillDir[i] + randomDev[i]) * this.freeWill;
+            }
 
             if (neighborhood.length > 0)
             {
+                console.log("Fish has ", neighborhood.length, " neighbors.");
+
                 for (const fish of neighborhood)
                 {
-                    fishDist = this.#distanceToFish(referenceFish, fish);
-
-                    if (length(fishDist) < length(fishSeparation)) fishSeparation = fishDist;
+                    fishSeparation = add(fishSeparation, negate(this.#distanceToFish(referenceFish, fish)));
 
                     fishAlignment = add(fishAlignment, fish.currentDirection);
 
@@ -113,18 +122,23 @@ class FishTank
 
                 for (let i = 0; i < 3; i++)
                 {
+                    fishSeparation[i] = fishSeparation[i] / neighborhood.length;
                     fishAlignment[i] = fishAlignment[i] / neighborhood.length;
                     fishCohesion[i] = fishCohesion[i] / neighborhood.length;
+
+                    //console.log("Sep: ", fishSeparation[i] * this.seperation, ". Align: ", fishAlignment[i] * this.alignment, ". Coh: ", fishCohesion[i] * this.cohesion);
+                    //console.log("Calculating movement vector for direction ", i, " as: ", fishSeparation[i] * negate(this.seperation), " + ", (fishAlignment[i] * this.alignment), " + ", (fishCohesion[i] * this.cohesion), ", with fish seperation as, ", this.seperation, ". The result is ", (fishSeparation[i] * negate(this.seperation)) + (fishAlignment[i] * this.alignment) + (fishCohesion[i] * this.cohesion));
+                    newDirection[i] = (fishSeparation[i] * this.seperation) + (fishAlignment[i] * this.alignment) + (fishCohesion[i] * this.cohesion) + freeWillDir[i];
                 }
+            }
+            else
+            {
+                newDirection = freeWillDir;
+            }
 
-                newDirection = vec3(0, 0, 0);
-
-                for (let i = 0; i < 3; i++)
-                {
-                    newDirection[i] = (fishSeparation[i] * this.seperation) + (fishAlignment[i] * this.alignment) + (fishCohesion[i] * this.cohesion);
-                }
-
-                referenceFish.currentDirection = normalize(newDirection.slice());
+            if (length(newDirection) !== 0)
+            {
+                referenceFish.currentDirection = newDirection.slice();
             }
         }
     }

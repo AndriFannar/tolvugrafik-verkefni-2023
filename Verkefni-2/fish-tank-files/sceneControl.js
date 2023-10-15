@@ -1,26 +1,28 @@
-var movement = false;
-var spinX = 0;
-var spinY = 0;
-var origX;
-var origY;
-var zDist;
-let noFish = 5;
+let movement = false;
+let spinX = 0;
+let spinY = 0;
+let origX;
+let origY;
+let zDist;
+let noFish = 20;
 
 let fishArray = [];
 let cube;
 let fishTank;
 
+let cubeSize = 3;
+
 function initScene()
 {
-    cube = new Cube(1.5, [vec4(0.4, 0.97, 0.83, 0.1)]);
+    cube = new Cube(cubeSize, [vec4(0.4, 0.97, 0.83, 0.1)]);
 
     for (let i = 0; i < noFish; i++)
     {
-        fishArray.push(new Fish(/*randomBetw(0.1, 0.05)*/0.5, [randomVec4(), randomVec4(), randomVec4()],
-            randomVec3(0.01, -0.01), randomVec3(1, -1), 0.01));
+        fishArray.push(new Fish(/*randomBetw(0.1, 0.05)*/0.3, [randomVec4(1,0,true), randomVec4(1,0,true), randomVec4(1,0,true)],
+            randomVec3(0.01, -0.01), randomVec3(cubeSize, -cubeSize), 0.005, 0.01));
     }
 
-    fishTank = new FishTank(fishArray, cube, 1, 60, 0.1, 1, 1);
+    fishTank = new FishTank(fishArray, cube, 1, 30, 1, 20, 5, 0, 0.001);
 
     resetBuffer(cube.points, fishArray[0].points);
 }
@@ -36,7 +38,7 @@ function mouseMovement(zDistOrigin)
         e.preventDefault();
     });
 
-    canvas.addEventListener("mouseup", function (e){
+    canvas.addEventListener("mouseup", function (){
         movement = false;
     });
 

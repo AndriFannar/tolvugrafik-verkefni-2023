@@ -73,11 +73,6 @@ class Cube
         return this.outlines.slice();
     }
 
-    get cubeColours()
-    {
-        return this.cubeCol.slice();
-    }
-
     get lineColour()
     {
         return this.lineCol.slice();

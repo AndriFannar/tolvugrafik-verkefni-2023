@@ -1,7 +1,7 @@
 class Fish
 {
     constructor(scale = 1, colours = [vec4(1, 0, 0, 1), vec4(0, 1, 0, 1), vec4(0, 0, 1, 1)],
-                initDirection = vec3(0.01, 0, 0), initPos = vec3(0, 0, 0), maxSpeed = 1,
+                initDirection = vec3(0.01, 0, 0), initPos = vec3(0, 0, 0), maxSpeed = 1, maxTurn = 3,
                 tailIncrement = 2.0, maxTailRotation = 35, finIncrement = 1.0, maxFinRotation = 25)
     {
         this.fishBodyPoints = [
@@ -44,7 +44,9 @@ class Fish
 
         this.currentDir = initDirection;
         this.currentPos = initPos;
-        this.maxSpeed = maxSpeed * scale;
+        this.maxSpeed = maxSpeed;
+
+        this.maxChange = Math.sin((maxTurn * (Math.PI / 180)));
 
         console.log(this.bounds);
     }
@@ -108,10 +110,67 @@ class Fish
 
     set currentDirection(newDirection)
     {
-        let scaling = this.maxSpeed / length(newDirection);
-        this.currentDir[0] = newDirection[0] * this.maxSpeed;
-        this.currentDir[1] = newDirection[1] * this.maxSpeed;
-        this.currentDir[2] = newDirection[2] * this.maxSpeed;
+        /*let dotProduct = 0;
+        let magnitudeOld = 0;
+        let magnitudeNew = 0;
+
+        for (let i = 0; i < 3; i++) {
+            dotProduct += this.currentDir[i] * newDirection[i];
+            magnitudeOld += this.currentDir[i] * this.currentDir[i];
+            magnitudeNew += newDirection[i] * newDirection[i];
+        }
+
+        magnitudeOld = Math.sqrt(magnitudeOld);
+        magnitudeNew = Math.sqrt(magnitudeNew);
+
+        if (magnitudeOld === 0 || magnitudeNew === 0) {
+            return;
+        }
+
+        const cosAngle = dotProduct / (magnitudeOld * magnitudeNew);
+        const angle = Math.acos(cosAngle) * (180 / Math.PI);
+
+        console.log(angle);*/
+
+        /*for(let i = 0; i < 3; i++)
+        {
+            if((this.currentDir[i] * newDirection[i]) < 0)
+            {
+
+            }
+        }*/
+
+        let maxChangeIndiv = this.maxChange / 3;
+
+        for (let i = 0; i < 3; i++)
+        {
+            if((newDirection[i] - this.currentDir[i]) > maxChangeIndiv)
+            {
+                console.log("New larger.");
+                this.currentDir[i] += maxChangeIndiv;
+            }
+            else if ((this.currentDir[i] - newDirection[i]) > maxChangeIndiv)
+            {
+                console.log("New less than.");
+                this.currentDir[i] -= maxChangeIndiv;
+            }
+            else
+            {
+                console.log("New inside margin.");
+                this.currentDir[i] = newDirection[i];
+            }
+        }
+
+        if (length(this.currentDir) > this.maxSpeed)
+        {
+            this.currentDir = normalize(this.currentDir);
+
+            for (let i = 0; i < 3; i++)
+            {
+                this.currentDir[i] = this.currentDir[i] * this.maxSpeed;
+            }
+        }
+
     }
 
 
@@ -144,18 +203,4 @@ class Fish
     }
 
 
-    get projectedBoundingBox()
-    {
-        return this.bounds.map((bound, i) =>
-        {
-            const projection = add(this.currentPos, bound);
-
-            for (let j = 0; j < 3; j++)
-            {
-                projection[j] += this.currentDir[j] * bound[i];
-            }
-
-            return projection;
-        });
-    }
 }

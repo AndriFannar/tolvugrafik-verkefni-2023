@@ -1,7 +1,15 @@
-function randomVec4(maxValue = 1, minValue = 0)
+function randomVec4(maxValue = 1, minValue = 0, excludeLastComponent)
 {
-    return vec4(randomBetw(maxValue, minValue), randomBetw(maxValue, minValue),
-                randomBetw(maxValue, minValue), randomBetw(maxValue, minValue));
+    if (excludeLastComponent)
+    {
+        return vec4(randomBetw(maxValue, minValue), randomBetw(maxValue, minValue),
+            randomBetw(maxValue, minValue), 1);
+    }
+    else
+    {
+        return vec4(randomBetw(maxValue, minValue), randomBetw(maxValue, minValue),
+            randomBetw(maxValue, minValue), randomBetw(maxValue, minValue));
+    }
 }
 
 function randomVec3(maxValue = 1, minValue = 0)
@@ -12,4 +20,9 @@ function randomVec3(maxValue = 1, minValue = 0)
 function randomBetw(maxValue, minValue)
 {
     return (Math.random() * (maxValue - minValue)) + minValue
+}
+
+function angleBetweenVectors(vec1, vec2)
+{
+    return Math.acos((dot(vec1,  vec2) / (length(vec1) * length(vec2))));
 }
