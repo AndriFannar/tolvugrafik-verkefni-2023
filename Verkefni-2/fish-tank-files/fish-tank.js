@@ -64,7 +64,7 @@ class FishTank
                 if ((length(distToFish) <= this.flockingRadius) &&
                     (angleBetweenVectors(referenceFish.currentDirection, distToFish) <= this.flockingAngle))
                 {
-                    console.log("Angle: ", angleBetweenVectors(referenceFish.currentDirection, distToFish));
+                    //console.log("Angle: ", angleBetweenVectors(referenceFish.currentDirection, distToFish));
                     neighborhood.push(fish);
                 }
             }
@@ -73,7 +73,7 @@ class FishTank
         return neighborhood.slice();
     }
 
-    calculateFlocking()
+    calculateMovement()
     {
         let neighborhood = [];
 
@@ -96,7 +96,8 @@ class FishTank
             newDirection = vec3(0, 0, 0);
 
             let freeWillDir = referenceFish.currentDirection;
-            let randomDev = randomVec3(0.0001, -0.0001);
+            let maxDirSpeed = referenceFish.maximumSpeed / 3.0;
+            let randomDev = randomVec3(maxDirSpeed, -maxDirSpeed);
 
             let toCentre = normalize(negate(referenceFish.currentPosition));
 
@@ -109,7 +110,7 @@ class FishTank
 
             if (neighborhood.length > 0)
             {
-                console.log("Fish has ", neighborhood.length, " neighbors.");
+                //console.log("Fish has ", neighborhood.length, " neighbors.");
 
                 for (const fish of neighborhood)
                 {

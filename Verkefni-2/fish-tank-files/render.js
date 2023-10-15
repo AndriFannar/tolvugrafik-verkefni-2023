@@ -15,8 +15,6 @@ let fColour;
 let vPosition;
 let mvLoc;
 
-let anaglyph = false;
-
 /**
  * Fall sem keyrir í upphafi.
  */
@@ -78,13 +76,16 @@ function resetBuffer(cubePoints, fishPoints)
 
     gl.bindBuffer( gl.ARRAY_BUFFER, fishVertexBuffer );
     gl.bufferData(gl.ARRAY_BUFFER, flatten(fishPoints), gl.STATIC_DRAW);
+
+    if (anaglyph) gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    else gl.clearColor(0.32, 0.4, 0.76, 0.76);
 }
 
 
 function renderFish(fish, mv)
 {
     fishTank.checkBounds(fish);
-    fishTank.calculateFlocking();
+    fishTank.calculateMovement();
 
     let normDirection = normalize(fish.currentDirection);
     let yaw = Math.atan2(-normDirection[2], normDirection[0]) * (180/Math.PI) ;
@@ -96,14 +97,14 @@ function renderFish(fish, mv)
 
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
 
-    gl.uniform4fv(fColour, fish.colours[0]);
+    if (!anaglyph) gl.uniform4fv(fColour, fish.colours[0]);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, fishVertexBuffer);
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, fish.bodyPoints.length);
 
-    gl.uniform4fv(fColour, fish.colours[1]);
+    if (!anaglyph) gl.uniform4fv(fColour, fish.colours[1]);
 
     let mvTail = mult(mv, translate(fish.bodyPoints[0][0], 0.0, 0.0));
     mvTail = mult(mvTail, rotateY(fish.tailRotation));
@@ -112,7 +113,7 @@ function renderFish(fish, mv)
     gl.uniformMatrix4fv(mvLoc, false, flatten(mvTail));
     gl.drawArrays(gl.TRIANGLES, fish.bodyPoints.length, fish.tailPoints.length);
 
-    gl.uniform4fv(fColour, fish.colours[2]);
+    if (!anaglyph) gl.uniform4fv(fColour, fish.colours[2]);
 
     let mvFin = mult(mv, rotateX(fish.finRotation));
     let drawnPoints = fish.bodyPoints.length + fish.tailPoints.length;
@@ -133,18 +134,25 @@ function renderCube(mv)
 {
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
 
-    gl.uniform4fv(fColour, cube.lineColour);
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
+    if(drawOutlines)
+    {
 
-    gl.drawArrays(gl.LINES, cube.sidePoints.length, cube.linePoints.length);
+        if (!anaglyph) gl.uniform4fv(fColour, cube.lineColour);
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
+        gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
 
-    gl.uniform4fv(fColour, cube.sideColours[0]);
+        gl.drawArrays(gl.LINES, cube.sidePoints.length, cube.linePoints.length);
+    }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
+    if (!anaglyph && drawSides)
+    {
+        gl.uniform4fv(fColour, cube.sideColours[0]);
 
-    gl.drawArrays(gl.TRIANGLES, 0, cube.sidePoints.length);
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
+        gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
+
+        gl.drawArrays(gl.TRIANGLES, 0, cube.sidePoints.length);
+    }
 }
 
 
@@ -156,16 +164,60 @@ function render()
     // Hreinsa teikniborðið
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    let mv = lookAt( vec3(0.0, 0.0, zDist), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0) );
-    mv = mult( mv, rotateX(spinX) );
-    mv = mult( mv, rotateY(spinY) );
+    let mv;
 
-    for(let i = 0; i < noFish; i++)
+    if(anaglyph)
     {
-        renderFish(fishArray[i], mv);
-    }
+        mv = lookAt(
+            vec3(eyesep / 2.0, 0.0, zDist),
+            vec3(0.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 0.0) );
 
-    renderCube(mv);
+        mv = mult( mv, rotateX(spinX) );
+        mv = mult( mv, rotateY(spinY) );
+
+        gl.uniform4fv(fColour, vec4(0.0, 1.0, 1.0, 1.0));
+
+        for(let i = 0; i < noFish; i++)
+        {
+            renderFish(fishArray[i], mv);
+        }
+
+        renderCube(mv);
+
+        mv = lookAt(
+            vec3(0.0 - eyesep / 2.0, 0.0, zDist),
+            vec3(0.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 0.0) );
+
+        mv = mult( mv, rotateX(spinX) );
+        mv = mult( mv, rotateY(spinY) );
+
+        gl.uniform4fv(fColour, vec4(1.0, 0.0, 0.0, 0.5));
+
+        for(let i = 0; i < noFish; i++)
+        {
+            renderFish(fishArray[i], mv);
+        }
+
+        renderCube(mv);
+    }
+    else
+    {
+        mv = lookAt(
+            vec3(0.0, 0.0, zDist),
+            vec3(0.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 0.0) );
+        mv = mult( mv, rotateX(spinX) );
+        mv = mult( mv, rotateY(spinY) );
+
+        for(let i = 0; i < noFish; i++)
+        {
+            renderFish(fishArray[i], mv);
+        }
+
+        renderCube(mv);
+    }
 
     //requestAnimFrame( render );
 }

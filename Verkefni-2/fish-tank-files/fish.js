@@ -76,6 +76,11 @@ class Fish
         return this.fishColours;
     }
 
+    get maximumSpeed()
+    {
+        return this.maxSpeed;
+    }
+
     get tailRotation()
     {
         this.tailRot += this.tailIncrement;
@@ -146,17 +151,17 @@ class Fish
         {
             if((newDirection[i] - this.currentDir[i]) > maxChangeIndiv)
             {
-                console.log("New larger.");
+                //console.log("New larger.");
                 this.currentDir[i] += maxChangeIndiv;
             }
             else if ((this.currentDir[i] - newDirection[i]) > maxChangeIndiv)
             {
-                console.log("New less than.");
+                //console.log("New less than.");
                 this.currentDir[i] -= maxChangeIndiv;
             }
             else
             {
-                console.log("New inside margin.");
+                //console.log("New inside margin.");
                 this.currentDir[i] = newDirection[i];
             }
         }
