@@ -42,8 +42,6 @@ function initScene()
             randomVec3(fishMaxSpeed, -fishMaxSpeed), randomVec3((cubeSize - fishSize), -(cubeSize - fishSize)), fishMaxSpeed, 0.001));
     }
 
-    console.log(alignToCentre);
-
     fishTank = new FishTank(fishArray, cube, flockingRadius, flockingAngle, separation, alignment, cohesion, freeWill, alignToCentre);
 
     resetBuffer(cube.points, fishArray[0].points);

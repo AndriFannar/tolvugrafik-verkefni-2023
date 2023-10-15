@@ -18,6 +18,15 @@ class FishTank
 
     checkBounds(fish)
     {
+        if(fish.currentBoundTimeout > 100)
+        {
+            fish.currentPosition = vec3(0.0, 0.0, 0.0);
+            fish.currentBoundTimeout = -fish.currentBoundTimeout;
+            return;
+        }
+
+        fish.currentBoundTimeout = -1;
+
         let fishBoundingBox = fish.boundingBox.slice();
         let fishPosition = fish.currentPosition.slice();
 
@@ -40,7 +49,10 @@ class FishTank
                 -1 * fishPosition[1],
                 -1 * fishPosition[2]
             );
+
+            fish.currentBoundTimeout = 50;
         }
+
     }
 
     #distanceToFish(referenceFish, fish)
@@ -64,7 +76,6 @@ class FishTank
                 if ((length(distToFish) <= this.flockingRadius) &&
                     (angleBetweenVectors(referenceFish.currentDirection, distToFish) <= this.flockingAngle))
                 {
-                    //console.log("Angle: ", angleBetweenVectors(referenceFish.currentDirection, distToFish));
                     neighborhood.push(fish);
                 }
             }
@@ -75,18 +86,16 @@ class FishTank
 
     calculateMovement()
     {
-        let neighborhood = [];
-
-
-
-        let fishSeparation;
-        let fishAlignment;
-        let fishCohesion;
-
-        let newDirection;
-
         for (const referenceFish of this.fish)
         {
+            let neighborhood = [];
+
+            let fishSeparation;
+            let fishAlignment;
+            let fishCohesion;
+
+            let newDirection;
+
             neighborhood = this.#findNeighbors(referenceFish);
 
             fishSeparation = vec3(0, 0, 0);
@@ -99,9 +108,11 @@ class FishTank
             let maxDirSpeed = referenceFish.maximumSpeed / 3.0;
             let randomDev = randomVec3(maxDirSpeed, -maxDirSpeed);
 
-            let toCentre = normalize(negate(referenceFish.currentPosition));
-
-            freeWillDir = mix(freeWillDir, toCentre, this.alignToCentre);
+            if (length(referenceFish.currentPosition) > 0)
+            {
+                let toCentre = normalize(negate(referenceFish.currentPosition));
+                freeWillDir = mix(freeWillDir, toCentre, this.alignToCentre);
+            }
 
             for(let i = 0; i < 3; i++)
             {
@@ -110,8 +121,6 @@ class FishTank
 
             if (neighborhood.length > 0)
             {
-                //console.log("Fish has ", neighborhood.length, " neighbors.");
-
                 for (const fish of neighborhood)
                 {
                     fishSeparation = add(fishSeparation, negate(this.#distanceToFish(referenceFish, fish)));
@@ -127,8 +136,6 @@ class FishTank
                     fishAlignment[i] = fishAlignment[i] / neighborhood.length;
                     fishCohesion[i] = fishCohesion[i] / neighborhood.length;
 
-                    //console.log("Sep: ", fishSeparation[i] * this.seperation, ". Align: ", fishAlignment[i] * this.alignment, ". Coh: ", fishCohesion[i] * this.cohesion);
-                    //console.log("Calculating movement vector for direction ", i, " as: ", fishSeparation[i] * negate(this.seperation), " + ", (fishAlignment[i] * this.alignment), " + ", (fishCohesion[i] * this.cohesion), ", with fish seperation as, ", this.seperation, ". The result is ", (fishSeparation[i] * negate(this.seperation)) + (fishAlignment[i] * this.alignment) + (fishCohesion[i] * this.cohesion));
                     newDirection[i] = (fishSeparation[i] * this.seperation) + (fishAlignment[i] * this.alignment) + (fishCohesion[i] * this.cohesion) + freeWillDir[i];
                 }
             }
@@ -137,9 +144,13 @@ class FishTank
                 newDirection = freeWillDir;
             }
 
-            if (length(newDirection) !== 0)
+            if (length(newDirection) > referenceFish.maximumSpeed / 2)
             {
                 referenceFish.currentDirection = newDirection.slice();
+            }
+            else
+            {
+                referenceFish.currentDirection = freeWillDir;
             }
         }
     }

@@ -48,7 +48,7 @@ class Fish
 
         this.maxChange = Math.sin((maxTurn * (Math.PI / 180)));
 
-        console.log(this.bounds);
+        this.boundTimeout = 0;
     }
 
     get points()
@@ -79,6 +79,16 @@ class Fish
     get maximumSpeed()
     {
         return this.maxSpeed;
+    }
+
+    get currentBoundTimeout()
+    {
+        return this.boundTimeout;
+    }
+
+    set currentBoundTimeout(change)
+    {
+        if (this.boundTimeout + change >= 0) this.boundTimeout += change;
     }
 
     get tailRotation()
@@ -115,53 +125,20 @@ class Fish
 
     set currentDirection(newDirection)
     {
-        /*let dotProduct = 0;
-        let magnitudeOld = 0;
-        let magnitudeNew = 0;
-
-        for (let i = 0; i < 3; i++) {
-            dotProduct += this.currentDir[i] * newDirection[i];
-            magnitudeOld += this.currentDir[i] * this.currentDir[i];
-            magnitudeNew += newDirection[i] * newDirection[i];
-        }
-
-        magnitudeOld = Math.sqrt(magnitudeOld);
-        magnitudeNew = Math.sqrt(magnitudeNew);
-
-        if (magnitudeOld === 0 || magnitudeNew === 0) {
-            return;
-        }
-
-        const cosAngle = dotProduct / (magnitudeOld * magnitudeNew);
-        const angle = Math.acos(cosAngle) * (180 / Math.PI);
-
-        console.log(angle);*/
-
-        /*for(let i = 0; i < 3; i++)
-        {
-            if((this.currentDir[i] * newDirection[i]) < 0)
-            {
-
-            }
-        }*/
-
         let maxChangeIndiv = this.maxChange / 3;
 
         for (let i = 0; i < 3; i++)
         {
             if((newDirection[i] - this.currentDir[i]) > maxChangeIndiv)
             {
-                //console.log("New larger.");
                 this.currentDir[i] += maxChangeIndiv;
             }
             else if ((this.currentDir[i] - newDirection[i]) > maxChangeIndiv)
             {
-                //console.log("New less than.");
                 this.currentDir[i] -= maxChangeIndiv;
             }
             else
             {
-                //console.log("New inside margin.");
                 this.currentDir[i] = newDirection[i];
             }
         }
@@ -175,7 +152,6 @@ class Fish
                 this.currentDir[i] = this.currentDir[i] * this.maxSpeed;
             }
         }
-
     }
 
 
