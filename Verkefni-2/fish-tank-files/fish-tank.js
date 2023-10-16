@@ -107,20 +107,21 @@ class FishTank
             let freeWillDir = referenceFish.currentDirection;
             let maxDirSpeed = referenceFish.maximumSpeed / 3.0;
             let randomDev = randomVec3(maxDirSpeed, -maxDirSpeed);
+            let toCentre = vec3(0, 0, 0);
 
             if (length(referenceFish.currentPosition) > 0)
             {
-                let toCentre = normalize(negate(referenceFish.currentPosition));
-                freeWillDir = mix(freeWillDir, toCentre, this.alignToCentre);
+                toCentre = normalize(negate(referenceFish.currentPosition));
             }
 
             for(let i = 0; i < 3; i++)
             {
-                freeWillDir[i] = (freeWillDir[i] + randomDev[i]) * this.freeWill;
+                freeWillDir[i] = (freeWillDir[i] + randomDev[i] + (toCentre[i] * this.alignToCentre)) * this.freeWill;
             }
 
             if (neighborhood.length > 0)
             {
+                //console.log("Number of Neighbors: ", neighborhood.length);
                 for (const fish of neighborhood)
                 {
                     fishSeparation = add(fishSeparation, negate(this.#distanceToFish(referenceFish, fish)));
@@ -129,6 +130,8 @@ class FishTank
 
                     fishCohesion = add(fishCohesion, fish.currentPosition);
                 }
+
+                console.log("Sep: ", fishSeparation);
 
                 for (let i = 0; i < 3; i++)
                 {
@@ -144,13 +147,9 @@ class FishTank
                 newDirection = freeWillDir;
             }
 
-            if (length(newDirection) > referenceFish.maximumSpeed / 2)
+            if (length(newDirection) > 0)
             {
                 referenceFish.currentDirection = newDirection.slice();
-            }
-            else
-            {
-                referenceFish.currentDirection = freeWillDir;
             }
         }
     }

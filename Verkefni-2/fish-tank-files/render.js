@@ -2,6 +2,7 @@
 
 /**
  * Verkefni 2 í TÖL105M Tölvugrafík.
+ * Skrá sem geymir öll föll tengd WebGL.
  *
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
@@ -99,7 +100,8 @@ function resetBuffer(cubePoints, fishPoints)
  * Teikna fisk.
  *
  * @param fish Fiskur sem á að teikna.
- * @param mv   Vörpunarfylki.
+ * @param mv   Vörpunarfylki (fyrir hægra auga ef á að teikna í þrívídd).
+ * @param mvL  Vörpunarfylki fyrir vinstra auga (ef á að teikna í þrívídd)
  */
 function renderFish(fish, mv, mvL)
 {
@@ -214,7 +216,8 @@ function renderFish(fish, mv, mvL)
 /**
  * Teikna fiskabúr.
  *
- * @param mv Vörpunarfylki.
+ * @param mv   Vörpunarfylki(fyrir hægra auga ef á að teikna í þrívídd).
+ * @param mvL  Vörpunarfylki fyrir vinstra auga (ef á að teikna í þrívídd)
  */
 function renderCube(mv, mvL)
 {
@@ -270,8 +273,7 @@ function render()
     if(anaglyph)
     {
         // Hægra auga.
-        let mvR = mat4();
-        mvR = lookAt(
+        let mvR = lookAt(
             vec3(eyesep / 2.0, 0.0, zDist),
             vec3(0.0, 0.0, 0.0),
             vec3(0.0, 1.0, 0.0) );
@@ -280,8 +282,7 @@ function render()
         mvR = mult( mvR, rotateY(spinY) );
 
         // Vinstra auga.
-        let mvL = mat4();
-        mvL = lookAt(
+        let mvL = lookAt(
             vec3(0.0 - eyesep / 2.0, 0.0, zDist),
             vec3(0.0, 0.0, 0.0),
             vec3(0.0, 1.0, 0.0) );
@@ -300,20 +301,20 @@ function render()
     else
     {
         // Búa til vörpunarfylkið.
-        let mv = mat4();
-
-        mv = lookAt(
+        let mv = lookAt(
             vec3(0.0, 0.0, zDist),
             vec3(0.0, 0.0, 0.0),
             vec3(0.0, 1.0, 0.0) );
         mv = mult( mv, rotateX(spinX) );
         mv = mult( mv, rotateY(spinY) );
 
+        // Teikna alla fiskana í fiskabúrinu.
         for(let i = 0; i < noFish; i++)
         {
             renderFish(fishArray[i], mv);
         }
 
+        // Teikna fiskabúrið.
         renderCube(mv);
     }
 

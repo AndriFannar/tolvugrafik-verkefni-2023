@@ -143,10 +143,10 @@ class Fish
             }
         }
 
+        this.currentDir = normalize(this.currentDir);
+
         if (length(this.currentDir) > this.maxSpeed)
         {
-            this.currentDir = normalize(this.currentDir);
-
             for (let i = 0; i < 3; i++)
             {
                 this.currentDir[i] = this.currentDir[i] * this.maxSpeed;

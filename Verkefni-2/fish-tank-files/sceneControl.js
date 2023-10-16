@@ -1,39 +1,59 @@
+/**
+ * Verkefni 2 í TÖL105M Tölvugrafík.
+ * Skrá sem stjórnar senunni.
+ *
+ * @author Andri Fannar Kristjánsson, afk6@hi.is
+ */
+
+// Breytur fyrir myndavél.
 let movement = false;
 let spinX = 0;
 let spinY = 0;
 let origX;
 let origY;
 let zDist;
-let noFish = 10;
 
+// Breytur tengdar fiskabúri.
 let fishArray, cube, fishTank;
 
+// Breytur fyrir tening.
 let cubeSize = 1;
 let drawSides = true;
 let drawOutlines = true;
 
+// Breytur fyrir fiska.
+let noFish = 10;
 let fishSize = 0.3;
-let fishMaxSpeed = 0.005;
+let fishMaxSpeed = 0.003;
 
-let flockingRadius = 1;
-let flockingAngle = 30;
-let separation = 1;
-let alignment = 1;
-let cohesion = 1;
-let freeWill = 1;
-let alignToCentre = 0.0001;
+// Breytur fyrir hegðun fiska.
+let flockingRadius = 1.5;
+let flockingAngle = 90;
+let separation = 10;
+let alignment = 20;
+let cohesion = 5;
+let freeWill = 0.3;
+let alignToCentre = 1;
 
+// Breytur fyrir þrívídd.
 let anaglyph = false;
 let eyesep = 0.2;
 
+
+/**
+ * Upphafsstillir senuna.
+ */
 function initScene()
 {
+    // Tæma fiskafylkið
     fishArray = [];
 
+    // Búa til nýtt fiskabúr.
     cube = new Cube(cubeSize, [vec4(0.4, 0.97, 0.83, 0.1)]);
 
     let randomColours;
 
+    // Búa til fiska með völdum stillingum og handahófskenndum lit.
     for (let i = 0; i < noFish; i++)
     {
         randomColours = [randomVec4(1,0,true), randomVec4(1,0,true), randomVec4(1,0,true)]
@@ -42,27 +62,46 @@ function initScene()
             randomVec3(fishMaxSpeed, -fishMaxSpeed), randomVec3((cubeSize - fishSize), -(cubeSize - fishSize)), fishMaxSpeed, 0.001));
     }
 
+    // Búa til fiskabúrið.
     fishTank = new FishTank(fishArray, cube, flockingRadius, flockingAngle, separation, alignment, cohesion, freeWill, alignToCentre);
 
+    // Endurstilla minnissvæði grafíkkorts.
     resetBuffer(cube.points, fishArray[0].points);
 }
 
+
+/**
+ * Hreyfing hlutar með mús.
+ *
+ * @param zDistOrigin Fjarlægð myndavélar á Z-ás.
+ */
 function mouseMovement(zDistOrigin)
 {
+    // Setja fjarlægð myndavélar frá núllpunkti.
     zDist = zDistOrigin;
 
-    canvas.addEventListener("mousedown", function (e){
+    // Hlusta eftir hvort músarhnappi er ýtt niður
+    canvas.addEventListener("mousedown", function (e)
+    {
+        // Ef hnappi er ýtt niður er hreyfing hlutar leyfð.
         movement = true;
+
+        // Núverandi staðsetning bendils.
         origX = e.offsetX;
         origY = e.offsetY;
         e.preventDefault();
     });
 
-    canvas.addEventListener("mouseup", function (){
+    // Ef músarhnappi er sleppt hættir hreyfing hlutarins.
+    canvas.addEventListener("mouseup", function ()
+    {
         movement = false;
     });
 
-    canvas.addEventListener("mousemove", function (e){
+    // Hlustar eftir hreyfingu músar.
+    canvas.addEventListener("mousemove", function (e)
+    {
+        // Ef hreyfing er leyfð (músahnappur niðri) á að snúa hlutnum.
         if(movement)
         {
             spinY = ( spinY + (origX - e.offsetX)) % 360;
@@ -72,7 +111,10 @@ function mouseMovement(zDistOrigin)
         }
     });
 
-    canvas.addEventListener("wheel", function (e){
+    // Hlusta eftir skruni músar.
+    canvas.addEventListener("wheel", function (e)
+    {
+        // Færa myndavél nær/fjær hlutnum.
         e.preventDefault();
         if(e.deltaY > 0.0)
         {
@@ -87,12 +129,13 @@ function mouseMovement(zDistOrigin)
 
 
 /**
- * Breytir stillingum leiksins.
+ * Breytir stillingum senunar frá HTML skjali.
  */
 function changeParams()
 {
     document.getElementById("changeParams").onclick = function()
     {
+        // Passa að stærð fiska sé ekki stærri en búrið.
         let newCubeSize = document.getElementById("tankSize").value;
         let newFishSize = (document.getElementById("fishSize").value * 0.1);
 
@@ -101,6 +144,7 @@ function changeParams()
             cubeSize = newCubeSize;
             if (newFishSize > cubeSize)
             {
+                // Ef stærð fiska er stærri á að velja stærð að handahófi.
                 fishSize = randomBetw(cubeSize, 0.1);
             }
         }
@@ -120,11 +164,12 @@ function changeParams()
         separation = document.getElementById("separation").value;
         alignment = document.getElementById("alignment").value;
         cohesion = document.getElementById("cohesion").value;
-        freeWill = document.getElementById("freeWill").value;
-        alignToCentre = (document.getElementById("centerAlignment").value * 0.0001);
+        freeWill = (document.getElementById("freeWill").value * 0.1);
+        alignToCentre = document.getElementById("centerAlignment").value;
 
         anaglyph = document.getElementById("anaglyph").checked;
 
+        // Upphafsstilla senuna.
         initScene();
     };
 
