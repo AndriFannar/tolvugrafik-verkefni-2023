@@ -1,9 +1,31 @@
+/**
+ * Verkefni 2 í TÖL105M Tölvugrafík.
+ * Fiskur.
+ *
+ * @author Andri Fannar Kristjánsson, afk6@hi.is
+ */
+
 class Fish
 {
+    /**
+     * Búa til nýjan fisk.
+     *
+     * @param scale           Stærð fiksins.
+     * @param colours         Litir fisksins, búkur, sporður, uggar.
+     * @param initDirection   Upphafsátt fisksins
+     * @param initPos         Upphafsstaðsetning fisksins.
+     * @param maxSpeed        Hámarkshraði fisksins.
+     * @param maxTurn         Hámarksbeygja fisksins.
+     * @param tailIncrement   Tilfærsla spaðans.
+     * @param maxTailRotation Hámarkssnúningur spaðans.
+     * @param finIncrement    Tilfærsla uggana.
+     * @param maxFinRotation  Hámarkssnúningur uggana.
+     */
     constructor(scale = 1, colours = [vec4(1, 0, 0, 1), vec4(0, 1, 0, 1), vec4(0, 0, 1, 1)],
                 initDirection = vec3(0.01, 0, 0), initPos = vec3(0, 0, 0), maxSpeed = 1, maxTurn = 3,
                 tailIncrement = 2.0, maxTailRotation = 35, finIncrement = 1.0, maxFinRotation = 25)
     {
+        // Hnútar fisksins.
         this.fishBodyPoints = [
             vec4(-0.50 * scale,  0.0         ,  0.0, 1.0),
             vec4( 0.20 * scale,  0.20 * scale,  0.0, 1.0),
@@ -86,6 +108,11 @@ class Fish
         return this.boundTimeout;
     }
 
+    /**
+     * Breyting á boundTimeout (fer ekki neðar en 0).
+     *
+     * @param change Breytingin á boundTimeout.
+     */
     set currentBoundTimeout(change)
     {
         if (this.boundTimeout + change >= 0) this.boundTimeout += change;
@@ -123,6 +150,14 @@ class Fish
     }
 
 
+    /**
+     * Setur nýja átt fyrir fiskinn.
+     * Ef nýji vigurinn er stærri en maxSpeed er hann minnkaður þannig að lengd hans sé innan maxSpeed.
+     * Ef breyting á stefnu frá núverandi stefnuvigri er meiri en maxTurn er hámarksbreytingin fyrir þá ása
+     * sem fara út fyrir maxTurn látin vera jöfn maxTurn.
+     *
+     * @param newDirection Nýr stefnuvigur.
+     */
     set currentDirection(newDirection)
     {
         let maxChangeIndiv = this.maxChange / 3;

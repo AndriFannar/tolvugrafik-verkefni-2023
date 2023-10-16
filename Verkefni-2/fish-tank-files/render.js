@@ -109,7 +109,7 @@ function renderFish(fish, mv, mvL)
     fishTank.checkBounds(fish);
 
     // Reikna nýjan hreyfivigur fyrir fiskinn.
-    fishTank.calculateMovement();
+    fishTank.calculateMovement(fish);
 
 
     // Reikna snúning fisks.

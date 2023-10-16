@@ -24,7 +24,8 @@ let drawOutlines = true;
 // Breytur fyrir fiska.
 let noFish = 10;
 let fishSize = 0.3;
-let fishMaxSpeed = 0.003;
+let fishMaxSpeed = 0.005;
+let maxTurn = 0.01;
 
 // Breytur fyrir hegðun fiska.
 let flockingRadius = 1.5;
@@ -59,7 +60,7 @@ function initScene()
         randomColours = [randomVec4(1,0,true), randomVec4(1,0,true), randomVec4(1,0,true)]
 
         fishArray.push(new Fish(fishSize, randomColours,
-            randomVec3(fishMaxSpeed, -fishMaxSpeed), randomVec3((cubeSize - fishSize), -(cubeSize - fishSize)), fishMaxSpeed, 0.001));
+            randomVec3(fishMaxSpeed, -fishMaxSpeed), randomVec3((cubeSize - fishSize), -(cubeSize - fishSize)), fishMaxSpeed, maxTurn));
     }
 
     // Búa til fiskabúrið.
