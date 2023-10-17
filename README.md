@@ -14,10 +14,14 @@ Heimadæmi & verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslan
     * Blikkandi Þríhyrningur
     * Fallandi Punktar
     * Breakout
-*Heimadæmi 4
+* Heimadæmi 4
     * SAKARIAS Kollustóll
     * Sólkerfi
-      
+* Heimadæmi 5 
+  * Háþróaður vélmennaarmur
+
  ## Verkefni:
  * Verkefni 1
       * Frogger
+ * verkefni 2
+   * Fiskabúr
