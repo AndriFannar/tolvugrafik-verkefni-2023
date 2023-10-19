@@ -28,6 +28,13 @@ var va = vec4(0.0, 0.0, -1.0,1);
 var vb = vec4(0.0, 0.942809, 0.333333, 1);
 var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
 var vd = vec4(0.816497, -0.471405, 0.333333,1);
+
+// Skilgreina staðsetningu uniform breytunnar fyrir ljósgjafann.
+let lightLoc;
+
+// SKilgreina breytur fyrir minnissvæðin
+let vBuffer;
+let nBuffer;
     
 var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
@@ -47,6 +54,7 @@ var canvas, render, gl;
 var points = [];
 var normals = [];
 
+
 onload = function init()  {
 
     canvas = document.getElementById( "gl-canvas" );
@@ -60,32 +68,22 @@ onload = function init()  {
 
     gl.enable(gl.DEPTH_TEST);
 
-    var myTeapot = teapot(5);
-    myTeapot.scale(0.5, 0.5, 0.5);
-
-    console.log(myTeapot.TriangleVertices.length);
-
-    points = myTeapot.TriangleVertices;
-    normals = myTeapot.Normals;
-
-
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    var vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+    // Búa til minnissvæði fyrir hnúta og þvervigra.
+    vBuffer = gl.createBuffer();
+    nBuffer = gl.createBuffer();
 
+    // Búa til tepottinn.
+    makeTeapot(3);
 
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer); // Sækja minnissvæði hnútanna fyrir hnútalitarann.
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
-
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer); // Sækja minnissvæði þvervigra fyrir hnútalitarann.
     var vNormal = gl.getAttribLocation( program, "vNormal" );
     gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vNormal);
@@ -103,7 +101,7 @@ onload = function init()  {
     gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct) );	
-    gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition) );
+    lightLoc = gl.getUniformLocation(program, "lightPosition");
     gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess );
 
 
@@ -135,9 +133,75 @@ onload = function init()  {
          } else {
              zDist -= 0.2;
          }
-     }  );  
+     }  );
+
+    // Hlusta eftir áslætti á lyklaborð.
+    window.addEventListener("keydown", function (e)
+    {
+        switch (e.key)
+        {
+            case "ArrowUp":
+                lightPosition[1] += 0.1; // Færa ljós jákvætt um Y-ás
+                break;
+
+
+            case "ArrowDown":
+                lightPosition[1] -= 0.1; // Færa ljós neikvætt um Y-ás
+                break;
+
+
+            case "ArrowLeft":
+                lightPosition[0] -= 0.1; // Færa ljós neikvætt um X-ás
+                break;
+
+
+            case "ArrowRight":
+                lightPosition[0] += 0.1; // Færa ljós jákvætt um X-ás
+                break;
+
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+                makeTeapot(e.key); // Ef slegið er á talnalyklana er búinn til nýr tepottur í völdum gæðum.
+                break;
+        }
+
+        e.preventDefault()
+    });
 
     render();
+}
+
+
+/**
+ * Býr til nýjan tepott í völdum gæðum og setur í rétt minnissvæði.
+ *
+ * @param detail Gæði tepottarins sem á að búa til.
+ */
+function makeTeapot(detail)
+{
+    // Búa til tepott með völdum gæðum.
+    let myTeapot = teapot(detail);
+
+    myTeapot.scale(0.5, 0.5, 0.5);
+
+    // Ná í hnúta og þvervigra.
+    points = myTeapot.TriangleVertices;
+    normals = myTeapot.Normals;
+
+    // Setja nýju hnútana í minnissvæði hnúta.
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+
+    // Setja nýju þvervigrana í minnissvæði þvervigra.
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
 }
 
 var render = function(){
@@ -146,6 +210,9 @@ var render = function(){
     mv = lookAt( vec3(0.0, 0.0, zDist), at, up );
     mv = mult( mv, rotateX( spinX ) );
     mv = mult( mv, rotateY( spinY ) );
+
+    // Senda staðsetningu ljóssins á hnútalitarann.
+    gl.uniform4fv(lightLoc, flatten(lightPosition) );
 
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "modelViewMatrix"), false, flatten(mv) );
     normalMatrix = [
@@ -156,6 +223,8 @@ var render = function(){
 
     gl.uniformMatrix3fv(normalMatrixLoc, false, flatten(normalMatrix) );
 
+    // Sækja minnissvæði hnúta og teikna.
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
     gl.drawArrays( gl.TRIANGLES, 0, points.length);
     requestAnimFrame(render);
   }
