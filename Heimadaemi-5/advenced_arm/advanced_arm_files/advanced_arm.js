@@ -50,6 +50,8 @@ var LOWER_ARM_HEIGHT = 5.0;
 var LOWER_ARM_WIDTH  = 0.5;
 var UPPER_ARM_HEIGHT = 5.0;
 var UPPER_ARM_WIDTH  = 0.5;
+var TOP_ARM_HEIGHT   = 2.0;
+var TOP_ARM_WIDTH    = 0.5;
 
 // Shader transformation matrices
 
@@ -60,9 +62,10 @@ var modelViewMatrix, projectionMatrix;
 var Base = 0;
 var LowerArm = 1;
 var UpperArm = 2;
+var TopArm = 3;
 
 
-var theta= [ 0, 0, 0];
+var theta= [ 0, 0, 0, 0];
 
 var angle = 0;
 
@@ -184,8 +187,11 @@ window.onload = function init() {
     } );
     
     // Event listener for keyboard
-     window.addEventListener("keydown", function(e){
-         switch( e.keyCode ) {
+     window.addEventListener("keydown", function(e)
+     {
+         let totalRotation = theta[0] + theta[1] + theta[2];
+         switch( e.keyCode )
+         {
             case 38:	// upp ör
                 zDist += 1.0;
                 break;
@@ -199,16 +205,24 @@ window.onload = function init() {
 			    theta[0] = Math.max(-180, theta[0]-5);
                 break;
             case 65:	// a - snýr neðri armi
-			    theta[1] = Math.min(80, theta[1]+5);
+                if(totalRotation < 180) theta[1] = Math.min(80, theta[1]+5);
                 break;
             case 83:	// s - snýr neðri armi
-			    theta[1] = Math.max(-80, theta[1]-5);
+                if(theta[1] > 0) theta[1] = Math.max(-80, theta[1]-5);
                 break;
             case 81:	// q - snýr efri armi
-			    theta[2] = Math.min(170, theta[2]+5);
+                if(totalRotation < 180) theta[2] = Math.min(170, theta[2]+5);
                 break;
             case 87:	// w - snýr efri armi
-			    theta[2] = Math.max(-170, theta[2]-5);
+                if(theta[2] > 0) theta[2] = Math.max(-170, theta[2]-5);
+                break;
+            case 49:	// 1 - snýr efsta armi
+                if(totalRotation < 180) theta[3] = Math.min(170, theta[3]+5);
+                e.preventDefault(); // Í sumum vöfrum breyta tölurnar um flipa
+                break;
+            case 50:	// 2 - snýr efsta armi
+                if(theta[4] > 0) theta[3] = Math.max(-170, theta[3]-5);
+                e.preventDefault();
                 break;
          }
      }  );  
@@ -234,6 +248,17 @@ function base() {
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+//----------------------------------------------------------------------------
+
+
+function topArm() {
+    var s = scalem(TOP_ARM_WIDTH, TOP_ARM_HEIGHT, TOP_ARM_WIDTH);
+    var instanceMatrix = mult(translate( 0.0, 0.5 * TOP_ARM_HEIGHT, 0.0 ),s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
@@ -282,6 +307,10 @@ var render = function() {
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotateZ( theta[UpperArm] ) );
     upperArm();
+
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, UPPER_ARM_HEIGHT, 0.0));
+    modelViewMatrix  = mult(modelViewMatrix, rotateZ( theta[TopArm] ) );
+    topArm();
 
     requestAnimFrame(render);
 }

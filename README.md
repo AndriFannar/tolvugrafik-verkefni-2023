@@ -19,6 +19,7 @@ Heimadæmi & verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslan
     * Sólkerfi
 * Heimadæmi 5 
   * Háþróaður vélmennaarmur
+  * Phong Tepotturinn
 
  ## Verkefni:
  * Verkefni 1
