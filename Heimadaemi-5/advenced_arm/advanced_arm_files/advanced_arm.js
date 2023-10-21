@@ -189,7 +189,6 @@ window.onload = function init() {
     // Event listener for keyboard
      window.addEventListener("keydown", function(e)
      {
-         let totalRotation = theta[0] + theta[1] + theta[2];
          switch( e.keyCode )
          {
             case 38:	// upp ör
@@ -205,23 +204,23 @@ window.onload = function init() {
 			    theta[0] = Math.max(-180, theta[0]-5);
                 break;
             case 65:	// a - snýr neðri armi
-                if(totalRotation < 180) theta[1] = Math.min(80, theta[1]+5);
+                theta[1] = Math.min(80, theta[1]+5);
                 break;
             case 83:	// s - snýr neðri armi
-                if(theta[1] > 0) theta[1] = Math.max(-80, theta[1]-5);
+                theta[1] = Math.max(-80, theta[1]-5);
                 break;
             case 81:	// q - snýr efri armi
-                if(totalRotation < 180) theta[2] = Math.min(170, theta[2]+5);
+                theta[2] = Math.min(170, theta[2]+5);
                 break;
             case 87:	// w - snýr efri armi
-                if(theta[2] > 0) theta[2] = Math.max(-170, theta[2]-5);
+                theta[2] = Math.max(-170, theta[2]-5);
                 break;
             case 49:	// 1 - snýr efsta armi
                 theta[3] = Math.min(170, theta[3]+5);
                 e.preventDefault(); // Í sumum vöfrum breyta tölurnar um flipa
                 break;
             case 50:	// 2 - snýr efsta armi
-                if(theta[3] > 0) theta[3] = Math.max(-170, theta[3]-5);
+                theta[3] = Math.max(-170, theta[3]-5);
                 e.preventDefault();
                 break;
          }
