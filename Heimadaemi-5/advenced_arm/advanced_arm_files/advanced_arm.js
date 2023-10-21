@@ -217,11 +217,11 @@ window.onload = function init() {
                 if(theta[2] > 0) theta[2] = Math.max(-170, theta[2]-5);
                 break;
             case 49:	// 1 - snýr efsta armi
-                if(totalRotation < 180) theta[3] = Math.min(170, theta[3]+5);
+                theta[3] = Math.min(170, theta[3]+5);
                 e.preventDefault(); // Í sumum vöfrum breyta tölurnar um flipa
                 break;
             case 50:	// 2 - snýr efsta armi
-                if(theta[4] > 0) theta[3] = Math.max(-170, theta[3]-5);
+                if(theta[3] > 0) theta[3] = Math.max(-170, theta[3]-5);
                 e.preventDefault();
                 break;
          }
