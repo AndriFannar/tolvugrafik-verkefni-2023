@@ -21,9 +21,15 @@ Heimadæmi & verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslan
   * Háþróaður vélmennaarmur
   * Sýnisforrit sem notar mouseLook
   * Phong Tepotturinn
+* Heimadæmi 6
+  * Tvöfaldur Pendúll
+  * Endurskinslíkan Phong og Blinn-Phong
+  * Phong-litaður SAKARIAS Kollustóll
+  * Gegnsær Tepottur
+  * Herbergið
 
  ## Verkefni:
  * Verkefni 1
-      * Frogger
+   * Frogger
  * verkefni 2
    * Fiskabúr
