@@ -4,15 +4,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script id="vertex-shader" type="x-shader/x-vertex">
       attribute vec4 vPosition;
-      attribute vec4 vColor;
-      varying vec4 fColor;
+      attribute vec4 vColour;
+      varying vec4 fColour;
 
       uniform mat4 modelViewMatrix;
       uniform mat4 projectionMatrix;
 
       void main()
       {
-          fColor = vColor;
+          fColour = vColour;
           gl_Position = projectionMatrix * modelViewMatrix * vPosition;
       }
     </script>
@@ -21,11 +21,11 @@
 
       precision mediump float;
 
-      varying  vec4 fColor;
+      varying  vec4 fColour;
 
       void main()
       {
-          gl_FragColor = fColor;
+          gl_FragColor = fColour;
       }
     </script>
 
@@ -47,6 +47,19 @@
   </head>
   <body>
     <canvas id="gl-canvas" width="600" height="600"> </canvas>
+    <div>
+      Hámarkshorn neðri hluta <input id="upperAngle" type="number" step="1" value="70">
+    </div>
+    <div>
+      Hraði neðri hluta <input id="upperMovement" type="number" step="1" value="10">
+    </div>
+    <div>
+      Hámarkshorn efri hluta <input id="lowerAngle" type="number" step="1" value="50">
+    </div>
+    <div>
+      Hraði efri hluta <input id="lowerMovement" type="number" step="1" value="2">
+    </div>
+    <button id="changeParams" type="button">Breyta Stillingum</button>
     <nav>
       <ul>
         <li>

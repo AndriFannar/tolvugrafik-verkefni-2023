@@ -125,7 +125,7 @@ function mouseMovement(zDistOrigin)
         {
             zDist -= 0.2;
         }
-    })
+    });
 }
 
 
