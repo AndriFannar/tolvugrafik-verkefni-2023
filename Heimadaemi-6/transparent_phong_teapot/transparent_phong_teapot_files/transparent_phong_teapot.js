@@ -1,7 +1,10 @@
 /**
- * Heimadæmi 6.2 í TÖL105M Tölvugrafík.
+ * Heimadæmi 6.4 í TÖL105M Tölvugrafík.
  * Forrit sem sýnir Utah Teppotinn
- * Hægt er að skipta á milli endurskinslíkans Phong og Blinn-Phong
+ * Hægt er að skipta á milli endurskinslíkans Phong og Blinn-Phong.
+ * Hægt er að breyta staðsetningu ljóssins.
+ * Hendir pixlum sem eru of bjartir. Stillanlegt með örvalyklum.
+ * Stækkar/minnkar tepottinn á reglubundinn hátt. Hægt að breyta með örvalyklunum.
  *
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
@@ -29,10 +32,21 @@ let lightLoc;
 let blinnPhongLoc;
 let blinnPhong = 0.0;
 
+// Breytur fyrir hámarksbirtu tepottarins.
+let maxBrightness = 1.8;
+let maxBrightnessLoc;
+
+// Breytur fyrir skölun tepottarins.
+let doScale = true;
+let scaler = 0.0;
+let objectScale;
+let scaleSpeed = 0.01;
+
 // Skilgreina breytur fyrir minnissvæðin
 let vBuffer;
 let nBuffer;
 
+// Breytur fyrir lýsingu.
 const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
 const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
@@ -42,6 +56,8 @@ const materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
 const materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 const materialShininess = 150.0;
+
+// WebGL breytur.
 let program;
 let canvas, gl;
 
@@ -88,6 +104,7 @@ onload = function init()  {
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
     normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
 
+    // Sækja blinnPhong uniform-breytuna.
     blinnPhongLoc = gl.getUniformLocation(program, "blinnPhong");
     gl.uniform1f(blinnPhongLoc, blinnPhong);
 
@@ -101,62 +118,75 @@ onload = function init()  {
     lightLoc = gl.getUniformLocation(program, "lightPosition");
     gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess );
 
+    maxBrightnessLoc = gl.getUniformLocation(program, "maxBrightness");
 
-    //event listeners for mouse
+    // Hlusta eftir hvort músarhnappi er ýtt niður
     canvas.addEventListener("mousedown", function(e)
     {
+        // Ef hnappi er ýtt niður er hreyfing hlutar leyfð.
         movement = true;
-        origX = e.clientX;
-        origY = e.clientY;
+
+        // Núverandi staðsetning bendils.
+        origX = e.offsetX;
+        origY = e.offsetY;
         e.preventDefault();
     } );
 
-    canvas.addEventListener("mouseup", function(e)
+    // Ef músarhnappi er sleppt hættir hreyfing hlutarins.
+    canvas.addEventListener("mouseup", function ()
     {
         movement = false;
-    } );
+    });
 
-    canvas.addEventListener("mousemove", function(e)
+    // Hlustar eftir hreyfingu músar.
+    canvas.addEventListener("mousemove", function (e)
     {
-        if(movement) {
-    	    spinY = ( spinY + (e.clientX - origX) ) % 360;
-            spinX = ( spinX + (origY - e.clientY) ) % 360;
-            origX = e.clientX;
-            origY = e.clientY;
+        // Ef hreyfing er leyfð (músahnappur niðri) á að snúa hlutnum.
+        if(movement)
+        {
+            spinY = ( spinY + (origX - e.offsetX)) % 360;
+            spinX = ( spinX + (e.offsetY - origY)) % 360;
+            origX = e.offsetX;
+            origY = e.offsetY;
         }
-    } );
-    
-    // Event listener for mousewheel
-     window.addEventListener("wheel", function(e)
-     {
-         if( e.deltaY > 0.0 ) {
-             zDist += 0.2;
-         } else {
-             zDist -= 0.2;
-         }
-     }  );
+    });
+
+    // Hlusta eftir skruni músar.
+    canvas.addEventListener("wheel", function (e)
+    {
+        // Færa myndavél nær/fjær hlutnum.
+        e.preventDefault();
+        if(e.deltaY > 0.0)
+        {
+            zDist += 0.2;
+        }
+        else
+        {
+            zDist -= 0.2;
+        }
+    });
 
     // Hlusta eftir áslætti á lyklaborð.
     window.addEventListener("keydown", function (e)
     {
         switch (e.key)
         {
-            case "ArrowUp":
+            case "w":
                 lightPosition[1] += 0.1; // Færa ljós jákvætt um Y-ás
                 break;
 
 
-            case "ArrowDown":
+            case "s":
                 lightPosition[1] -= 0.1; // Færa ljós neikvætt um Y-ás
                 break;
 
 
-            case "ArrowLeft":
+            case "a":
                 lightPosition[0] -= 0.1; // Færa ljós neikvætt um X-ás
                 break;
 
 
-            case "ArrowRight":
+            case "d":
                 lightPosition[0] += 0.1; // Færa ljós jákvætt um X-ás
                 break;
 
@@ -170,6 +200,22 @@ onload = function init()  {
             case "8":
             case "9":
                 makeTeapot(e.key); // Ef slegið er á talnalyklana er búinn til nýr tepottur í völdum gæðum.
+                break;
+
+            case "ArrowLeft":
+                maxBrightness += 0.01; // Auka hámarksbirtu sem þarf svo pixlarnir hverfi.
+                break;
+
+            case "ArrowRight":
+                maxBrightness -= 0.01; // Minnka hámarksbirtu sem þarf svo pixlarnir hverfi.
+                break;
+
+            case "ArrowUp":
+                scaleSpeed += 0.001; // Auka hraða stækkunar/minnkunar.
+                break;
+
+            case "ArrowDown":
+                if (scaleSpeed > 0.0) scaleSpeed -= 0.001; // Minnka hraða stækkunar/minnkunar.
                 break;
         }
 
@@ -195,6 +241,11 @@ function changeParams()
 
         gl.uniform1f(blinnPhongLoc, blinnPhong);
     };
+
+    document.getElementById("scale").onclick = function ()
+    {
+        doScale = !doScale;
+    }
 }
 
 
@@ -232,6 +283,15 @@ let render = function()
     mv = mult( mv, rotateX( spinX ) );
     mv = mult( mv, rotateY( spinY ) );
 
+    // Stækka/minnka tepottinn.
+    if (doScale)
+    {
+        scaler += scaleSpeed;
+        objectScale = Math.abs(Math.cos(scaler));
+        mv = mult(mv, scalem(objectScale, objectScale, objectScale));
+    }
+
+
     // Senda staðsetningu ljóssins á hnútalitarann.
     gl.uniform4fv(lightLoc, flatten(lightPosition) );
 
@@ -242,6 +302,7 @@ let render = function()
         vec3(mv[2][0], mv[2][1], mv[2][2])
     ];
 
+    gl.uniform1f(maxBrightnessLoc, maxBrightness);
     gl.uniformMatrix3fv(normalMatrixLoc, false, flatten(normalMatrix) );
 
     // Sækja minnissvæði hnúta og teikna.
