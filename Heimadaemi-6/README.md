@@ -8,4 +8,4 @@
 
 ## Gegnsær Tepottur
 
-## Herbergið
+## Veggir, gólf, himinn

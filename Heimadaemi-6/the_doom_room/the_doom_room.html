@@ -14,7 +14,6 @@
       attribute  vec4 vPosition;
       attribute  vec2 vTexCoord;
 
-      //varying vec4 fColor;
       varying vec2 fTexCoord;
 
       uniform mat4 projection;
@@ -31,14 +30,12 @@
 
       precision mediump float;
 
-      //varying vec4 fColor;
       varying vec2 fTexCoord;
 
       uniform sampler2D texture;
 
       void main()
       {
-      //    gl_FragColor = fColor * texture2D( texture, fTexCoord );
           gl_FragColor = texture2D( texture, fTexCoord );
       }
     </script>
@@ -49,11 +46,11 @@
     <script type="text/javascript" src="../../common/MV.js"></script>
     <script
       type="text/javascript"
-      src="veggir_golf_himinn_files/mouseLook.js"
+      src="the_doom_room_files/mouseLook.js"
     ></script>
     <script
       type="text/javascript"
-      src="veggir_golf_himinn_files/veggir_golf_himinn.js"
+      src="the_doom_room_files/the_doom_room.js"
     ></script>
 
     <style type="text/css">
@@ -64,18 +61,7 @@
     </style>
   </head>
   <body>
-    <canvas id="gl-canvas" width="800" height="800">
-      <img
-        id="VeggImage"
-        src="veggir_golf_himinn_files/brick29.jpg"
-        hidden=""
-      />
-      <img
-        id="GolfImage"
-        src="veggir_golf_himinn_files/WoodPlanks.jpg"
-        hidden=""
-      />
-    </canvas>
+    <canvas id="gl-canvas" width="800" height="800"></canvas>
     <nav>
       <ul>
         <li>

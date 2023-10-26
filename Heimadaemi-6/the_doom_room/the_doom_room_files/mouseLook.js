@@ -2,7 +2,7 @@ let UAngle = 270;
 let angleIncrement = 0.5;
 
 let xPos = 0;
-let zPos = 2.0;
+let zPos = 0;
 let movementIncrement = 0.1;
 
 function mouseLook(key, mdelta)
@@ -18,6 +18,9 @@ function mouseLook(key, mdelta)
     // Reikna X- og Z- hluta.
     let currentXDir = Math.cos(radians(UAngle));
     let currentZDir = Math.sin(radians(UAngle));
+
+    let oldXPos = xPos;
+    let oldZPos = zPos;
 
     switch (key)
     {
@@ -41,6 +44,13 @@ function mouseLook(key, mdelta)
             zPos += movementIncrement * currentXDir;
             break;
     }
+
+    let coll = collision(xPos, zPos);
+
+    if (coll[0]) xPos = oldXPos;
+    if (coll[1]) zPos = oldZPos;
+
+    collision(xPos, zPos);
 
     // Búa til vigra fyrir lookAt.
     let eye = vec3(xPos, 0.5, zPos);
