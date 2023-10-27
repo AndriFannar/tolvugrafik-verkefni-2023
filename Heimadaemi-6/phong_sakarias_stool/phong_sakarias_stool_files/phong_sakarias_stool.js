@@ -7,58 +7,71 @@
 var canvas;
 var gl;
 
-// Fjöldi hnúta
-var numVertices  = 36;
+var NumVertices  = 36;
 
-// Fylki fyrir hnúta og liti.
-var points = [];
-let normals = [];
+var pointsArray = [];
+var normalsArray = [];
 
-// Er notandinn að snúa hlutnum.
-var movement = false;
-
-// Upphafsstaða snúnings.
-var spinX = -30;
-var spinY = 40;
-
-// Staðsetning bendils.
+var movement = false;     // Do we rotate?
+var spinX = 0;
+var spinY = 0;
 var origX;
 var origY;
-let zDist = -3.0;
 
-const fovy = 50.0;
-const near = 0.2;
-const far = 100.0;
+var zDist = -3.0;
+
+var fovy = 50.0;
+var near = 0.2;
+var far = 100.0;
 
 var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 
-var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
+var materialAmbient = vec4( 0.4, 0.4, 0.4, 1.0 );
+var materialDiffuse = vec4( 0.6, 0.6, 0.6, 1.0 );
 var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 var materialShininess = 150.0;
 
-// Uniform breyta í hnútalitarann.
-var matrixLoc;
+var ctm;
+var ambientColor, diffuseColor, specularColor;
 
-window.onload = function init()
-{
+var mv, projectionMatrix;
+var modelViewMatrixLoc, projectionMatrixLoc;
+
+var normalMatrix, normalMatrixLoc;
+
+var eye;
+var at = vec3(0.0, 0.0, 0.0);
+var up = vec3(0.0, 1.0, 0.0);
+
+
+window.onload = function init() {
+
     canvas = document.getElementById( "gl-canvas" );
-    
+
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 0.9, 1.0, 1.0, 1.0 );
-    
+
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
 
     var dypi = gl.getParameter(gl.DEPTH_BITS);
     var gildi = gl.getParameter(gl.DEPTH_CLEAR_VALUE);
     var bil = gl.getParameter(gl.DEPTH_RANGE);
+    //gl.enable(gl.CULL_FACE);
+    //gl.cullFace(gl.BACK);
+
+    //
+    //  Load shaders and initialize attribute buffers
+    //
+    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    gl.useProgram( program );
+
 
     ambientProduct = mult(lightAmbient, materialAmbient);
     diffuseProduct = mult(lightDiffuse, materialDiffuse);
@@ -66,13 +79,9 @@ window.onload = function init()
 
     normalCube();
 
-    // Hlaða inn liturum.
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
-
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
 
     var vNormal = gl.getAttribLocation( program, "vNormal" );
     gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
@@ -80,15 +89,11 @@ window.onload = function init()
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
     var vPosition = gl.getAttribLocation( program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
-
-    let projectionMatrix = perspective(fovy, 1.0, near, far);
-    gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
-    normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
 
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
@@ -97,13 +102,12 @@ window.onload = function init()
     projectionMatrix = perspective( fovy, 1.0, near, far );
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix) );
 
+
     gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition) );
     gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess );
-
-    matrixLoc = gl.getUniformLocation( program, "rotation" );
 
     // Músahreyfing
     canvas.addEventListener("mousedown", function(e){
@@ -177,7 +181,6 @@ function quad(a, b, c, d, n)
         vec4(  0.5, -0.5, -0.5, 1.0 )
     ];
 
-
     var faceNormals = [
         vec4( 0.0, 0.0,  1.0, 0.0 ),  // front
         vec4(  1.0, 0.0, 0.0, 0.0 ),  // right
@@ -187,13 +190,18 @@ function quad(a, b, c, d, n)
         vec4( -1.0, 0.0, 0.0, 0.0 )   // left
     ];
 
+    // We need to partition the quad into two triangles in order for
+    // WebGL to be able to render it.  In this case, we create two
+    // triangles from the quad indices
 
-    //vertex color assigned by the index of the vertex
+    //fece normals assigned using the parameter n
+
     var indices = [ a, b, c, a, c, d ];
 
     for ( var i = 0; i < indices.length; ++i ) {
-        points.push( vertices[indices[i]] );
-        normals.push(faceNormals[n]);
+        pointsArray.push( vertices[indices[i]] );
+        normalsArray.push(faceNormals[n]);
+
     }
 }
 
@@ -205,11 +213,13 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Reiknar snúning hlutarins.
-    var mv = mat4();
-    mv = mult( mv, rotateX(spinX) );
-    mv = mult( mv, rotateY(spinY) ) ;
+    mv = lookAt( vec3(0.0, 0.0, zDist), at, up );
+    mv = mult( mv, rotateX( spinX ) );
+    mv = mult( mv, rotateY( spinY ) );
 
+    // normal matrix only really need if there is nonuniform scaling
+    // it's here for generality but since there is
+    // no scaling in this example we could just use modelView matrix in shaders
     normalMatrix = [
         vec3(mv[0][0], mv[0][1], mv[0][2]),
         vec3(mv[1][0], mv[1][1], mv[1][2]),
@@ -217,7 +227,12 @@ function render()
     ];
     normalMatrix.matrix = true;
 
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mv) );
     gl.uniformMatrix3fv(normalMatrixLoc, false, flatten(normalMatrix) );
+
+    //gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+
+    //window.requestAnimFrame(render);
 
     // Setja saman kollinn.
     // Fremri vinstri fóturinn.
@@ -225,38 +240,38 @@ function render()
     mv1 = mult( mv1, rotateX(3));
     mv1 = mult( mv1, rotateZ(-3));
     mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     // Aftari vinstri fóturinn.
     mv1 = mult( mv, translate( -0.3525, 0.0, 0.2625) );
     mv1 = mult( mv1, rotateX(-3));
     mv1 = mult( mv1, rotateZ(-3));
     mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     // Fremri hægri fóturinn.
     mv1 = mult( mv, translate( 0.3525, 0.0, -0.2625) );
     mv1 = mult( mv1, rotateX(3));
     mv1 = mult( mv1, rotateZ(3));
     mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     // Aftari hægri fóturinn.
     mv1 = mult( mv, translate( 0.3525, 0.0, 0.2625) );
     mv1 = mult( mv1, rotateX(-3));
     mv1 = mult( mv1, rotateZ(3));
     mv1 = mult( mv1, scalem( 0.1, 0.80, 0.1 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     // Sessa kollsins.
     mv1 = mult( mv, translate( 0.0, 0.351, 0.0) );
     mv1 = mult( mv1, scalem( 0.765, 0.135, 0.585 ) );
-    gl.uniformMatrix4fv(matrixLoc, false, flatten(mv1));
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mv1));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 
     requestAnimFrame( render );
 }
