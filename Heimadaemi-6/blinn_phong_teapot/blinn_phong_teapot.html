@@ -76,7 +76,7 @@
             // Ef það á ekki að nota Blinn-Phong þá reiknar bútalitarinn endurskinið.
             vec4 fColour;
 
-            // Reiknum vigurinn r í stað H.
+            // Reiknum vigurinn R í stað H.
             //vec3 H = normalize( normalize(L) + normalize(E) );
             vec3 R = 2.0 * max(dot(L, N), 0.0) * N - L;
             vec4 ambient = ambientProduct;
