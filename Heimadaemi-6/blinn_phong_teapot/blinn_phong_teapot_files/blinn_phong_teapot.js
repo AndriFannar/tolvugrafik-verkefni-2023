@@ -121,7 +121,7 @@ onload = function init()
     let diffuseProduct = mult(lightDiffuse, materialDiffuse);
     let specularProduct = mult(lightSpecular, materialSpecular);
 
-    // Senda eiginleikana yfir, með staðsetningu ljóssins.
+    // Senda eiginleikana lýsingar yfir, með staðsetningu ljóssins.
     gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct) );	

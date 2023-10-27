@@ -85,7 +85,7 @@
             vec4  diffuse = Kd*diffuseProduct;
 
             // Notum vigurinn r og sjónvigurinn E til að reikna depilendurskin.
-            float Ks = pow( max(dot(normalize(R), normalize(E)), 0.0), (shininess / 4.0) );
+            float Ks = pow( max(dot(normalize(E), normalize(R)), 0.0), (shininess / 4.0) );
             //float Ks = pow( max(dot(normalize(N), H), 0.0), shininess );
             vec4  specular = Ks * specularProduct;
 

@@ -117,14 +117,14 @@ window.onload = function init()
         alert("WebGL isn't available");
     }
 
-    //  Stilla teiknisvæðið.
+    // Stilla teiknisvæðið.
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor( 0.9, 1.0, 1.0, 1.0 );
 
     // Stilla WebGL
     gl.enable( gl.DEPTH_TEST );
 
-    //  Hlaða inn liturunum.
+    // Hlaða inn liturunum.
     let program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 

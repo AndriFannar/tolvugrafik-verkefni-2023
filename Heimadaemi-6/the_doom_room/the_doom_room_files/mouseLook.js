@@ -5,6 +5,13 @@ let xPos = 0;
 let zPos = 0;
 let movementIncrement = 0.1;
 
+/**
+ * Sér um stjórnun myndavélar.
+ *
+ * @param key      Lykill lyklaborðs sem sleginn var inn.
+ * @param mdelta   Staðsetning músar.
+ * @returns {[]|*} Vörpunarfylki.
+ */
 function mouseLook(key, mdelta)
 {
     let look = mat4();
@@ -45,19 +52,16 @@ function mouseLook(key, mdelta)
             break;
     }
 
+    // Athuga árekstur, og henda nýju hnitunum ef árekstur verður.
     let coll = collision(xPos, zPos);
 
     if (coll[0]) xPos = oldXPos;
     if (coll[1]) zPos = oldZPos;
 
-    collision(xPos, zPos);
-
     // Búa til vigra fyrir lookAt.
     let eye = vec3(xPos, 0.5, zPos);
     let at = vec3(xPos + currentXDir, 0.5, zPos + currentZDir);
     let up = vec3(0.0, 1.0, 0.0);
-
-    // -- Hægst að skipta út fyrir kall á lookAt(eye, at up) --
 
     let v = normalize( subtract(at, eye) );
     let n = normalize( cross(v, up) );
@@ -71,8 +75,6 @@ function mouseLook(key, mdelta)
         vec4( v, -dot(v, eye) ),
         vec4()
     );
-
-    // --
 
     return look;
 }

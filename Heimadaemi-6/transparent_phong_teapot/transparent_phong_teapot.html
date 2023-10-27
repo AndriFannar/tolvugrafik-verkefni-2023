@@ -21,6 +21,8 @@
       uniform vec4 lightPosition;
       uniform mat3 normalMatrix;
 
+      uniform float scale;
+
       void main()
       {
           vec3 pos = (modelViewMatrix * vPosition).xyz;
@@ -49,7 +51,10 @@
             blinnColour.a = 1.0;
           }
 
-          gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+          vec4 newSize = vPosition;
+          newSize.xyz = vPosition.xyz * scale;
+
+          gl_Position = projectionMatrix * modelViewMatrix * newSize;
       }
     </script>
 
@@ -75,15 +80,18 @@
           }
           else
           {
+            // Ef það á ekki að nota Blinn-Phong þá reiknar bútalitarinn endurskinið.
             vec4 fColour;
 
-            vec3 H = normalize( normalize(L) + normalize(E) );
+            // Reiknum vigurinn R í stað H.
+            vec3 R = 2.0 * max(dot(L, N), 0.0) * N - L;
             vec4 ambient = ambientProduct;
 
             float Kd = max( dot(normalize(L), normalize(N)), 0.0 );
             vec4  diffuse = Kd*diffuseProduct;
 
-            float Ks = pow( max(dot(normalize(N), H), 0.0), shininess );
+            // Notum vigurinn r og sjónvigurinn E til að reikna depilendurskin.
+            float Ks = pow( max(dot(normalize(E), normalize(R)), 0.0), (shininess / 4.0) );
             vec4  specular = Ks * specularProduct;
 
             if( dot(normalize(L), normalize(N)) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
@@ -118,7 +126,7 @@
         display: none !important;
       }
     </style>
-    <title>Blinn-Phong Tepottur</title>
+    <title>Gegnsær Blinn-Phong Tepottur</title>
   </head>
   <body>
     Hægt er að nota <b>1...9</b> til að breyta nákvæmni tepottsins<br />

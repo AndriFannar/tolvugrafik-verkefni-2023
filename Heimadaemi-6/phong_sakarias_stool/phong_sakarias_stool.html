@@ -16,7 +16,6 @@
       {
           vec3 pos = (modelViewMatrix * vPosition).xyz;
 
-          // check for directional light
           if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
           else L = normalize( lightPosition.xyz - pos );
 
