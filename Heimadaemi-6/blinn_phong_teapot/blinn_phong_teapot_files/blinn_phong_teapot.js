@@ -6,62 +6,83 @@
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
 
-var normalMatrix, normalMatrixLoc;
+// WebGL breytur.
+let program;
+let canvas, gl;
 
-let movement = false;     // Do we rotate?
+// Snúningur hlutar.
+let movement = false;
 let spinX = 0;
 let spinY = 0;
 let origX;
 let origY;
 
+// Fjarlægð myndavélar.
 let zDist = -5.0;
 
+// Vigrar fyrir lookAt.
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
 
+// Vigrar fyrir sjónvörpun.
 const fovy = 50.0;
 const near = 0.2;
 const far = 100.0;
 const vc = vec4(-0.816497, -0.471405, 0.333333, 1);
 
-// Skilgreina staðsetningu uniform breytunnar fyrir ljósgjafann.
-let lightLoc;
+// Setja búta- og hnútalitaranum hvort nota eigi Phong eða Blinn-Phong.
 let blinnPhongLoc;
 let blinnPhong = 0.0;
 
-// Skilgreina breytur fyrir minnissvæðin
+// Minnissvæði hnúta og þvervigra.
 let vBuffer;
 let nBuffer;
 
+// Uniform breytur fyrir ljósgjafa.
+let lightLoc;
+
+// Stillingar fyrir ljósvigur.
 const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
 const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
+// Stillingar fyrir lýsingu á tepottinum.
 const materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
 const materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 const materialShininess = 150.0;
-let program;
-let canvas, gl;
 
+// Fylki fyrir hnúta og þvervigra.
 let points = [];
 let normals = [];
 
+// Uniform breyta og fylki fyrir þvervigra.
+var normalMatrix, normalMatrixLoc;
 
-onload = function init()  {
+/**
+ * Keyrt þegar vefsíða er sótt.
+ */
+onload = function init()
+{
+    // Hlaða inn canvas hlutanum.
+    canvas = document.getElementById("gl-canvas");
 
-    canvas = document.getElementById( "gl-canvas" );
+    // Setja upp WebGL.
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl)
+    {
+        alert("WebGL isn't available");
+    }
 
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
-
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-
+    //  Stilla teiknisvæðið.
+    gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor( 0.9, 1.0, 1.0, 1.0 );
 
-    gl.enable(gl.DEPTH_TEST);
+    // Stilla WebGL
+    gl.enable( gl.DEPTH_TEST );
 
+    //  Hlaða inn liturunum.
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
@@ -84,17 +105,23 @@ onload = function init()  {
     gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vNormal);
 
+    // Búa til sjónvörpun.
     let projectionMatrix = perspective(fovy, 1.0, near, far);
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+
+    // Ná í uniform-breytuna fyrir þvervigra.
     normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
 
+    // Ná í uniform-breytu til að stilla hvort endurskinslíkanið á að nota.
     blinnPhongLoc = gl.getUniformLocation(program, "blinnPhong");
     gl.uniform1f(blinnPhongLoc, blinnPhong);
 
+    // Margfalda eiginleika ljóssins og hlutarins.
     let ambientProduct = mult(lightAmbient, materialAmbient);
     let diffuseProduct = mult(lightDiffuse, materialDiffuse);
     let specularProduct = mult(lightSpecular, materialSpecular);
 
+    // Senda eiginleikana yfir, með staðsetningu ljóssins.
     gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct) );	
@@ -102,39 +129,51 @@ onload = function init()  {
     gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess );
 
 
-    //event listeners for mouse
+    // Hlusta eftir hvort músarhnappi er ýtt niður
     canvas.addEventListener("mousedown", function(e)
     {
+        // Ef hnappi er ýtt niður er hreyfing hlutar leyfð.
         movement = true;
-        origX = e.clientX;
-        origY = e.clientY;
+
+        // Núverandi staðsetning bendils.
+        origX = e.offsetX;
+        origY = e.offsetY;
         e.preventDefault();
     } );
 
-    canvas.addEventListener("mouseup", function(e)
+    // Ef músarhnappi er sleppt hættir hreyfing hlutarins.
+    canvas.addEventListener("mouseup", function ()
     {
         movement = false;
-    } );
+    });
 
-    canvas.addEventListener("mousemove", function(e)
+    // Hlustar eftir hreyfingu músar.
+    canvas.addEventListener("mousemove", function (e)
     {
-        if(movement) {
-    	    spinY = ( spinY + (e.clientX - origX) ) % 360;
-            spinX = ( spinX + (origY - e.clientY) ) % 360;
-            origX = e.clientX;
-            origY = e.clientY;
+        // Ef hreyfing er leyfð (músahnappur niðri) á að snúa hlutnum.
+        if(movement)
+        {
+            spinY = ( spinY + (origX - e.offsetX)) % 360;
+            spinX = ( spinX + (e.offsetY - origY)) % 360;
+            origX = e.offsetX;
+            origY = e.offsetY;
         }
-    } );
-    
-    // Event listener for mousewheel
-     window.addEventListener("wheel", function(e)
-     {
-         if( e.deltaY > 0.0 ) {
-             zDist += 0.2;
-         } else {
-             zDist -= 0.2;
-         }
-     }  );
+    });
+
+    // Hlusta eftir skruni músar.
+    canvas.addEventListener("wheel", function (e)
+    {
+        // Færa myndavél nær/fjær hlutnum.
+        e.preventDefault();
+        if(e.deltaY > 0.0)
+        {
+            zDist += 0.2;
+        }
+        else
+        {
+            zDist -= 0.2;
+        }
+    });
 
     // Hlusta eftir áslætti á lyklaborð.
     window.addEventListener("keydown", function (e)
@@ -224,6 +263,9 @@ function makeTeapot(detail)
 }
 
 
+/**
+ * Teiknifall.
+ */
 let render = function()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

@@ -5,21 +5,24 @@
  * @author Andri Fannar Kristjánsson, afk6@hi.is
  */
 
-// Myndavél
+// Snúningur hlutar.
 let movement = false;
 let spinX = 0;
 let spinY = 0;
 let origX;
 let origY;
 
+// Fjarlægð myndavélar.
 let zDist = -25.0;
 
 // Hnútar ferhyrningsins.
 let NumVertices = 36;
 
+// Fylki fyrir hnúta og liti.
 const points = [];
 const colors = [];
 
+// Hnútar.
 const vertices = [
     vec4(-0.5, -0.5, 0.5, 1.0),
     vec4(-0.5, 0.5, 0.5, 1.0),
@@ -50,9 +53,8 @@ const UPPER_PENDULUM_WIDTH = 0.5;
 const LOWER_PENDULUM_HEIGHT = 5.0;
 const LOWER_PENDULUM_WIDTH = 0.5;
 
-// Breytur fyrir hnútalitarann.
+// Breytur fyrir hnútalitara.
 let modelViewMatrix, projectionMatrix;
-
 let modelViewMatrixLoc;
 
 let vBuffer, cBuffer;
@@ -117,7 +119,7 @@ window.onload = function init()
 
     //  Stilla teiknisvæðið.
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.32, 0.4, 0.76, 0.76);
+    gl.clearColor( 0.9, 1.0, 1.0, 1.0 );
 
     // Stilla WebGL
     gl.enable( gl.DEPTH_TEST );
@@ -128,10 +130,6 @@ window.onload = function init()
 
     // Búa til ferhyrning.
     colorCube();
-
-    //  Hlaða inn liturunum.
-    program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
 
     // Búa til minnissvæði fyrir hnúta.
     vBuffer = gl.createBuffer();

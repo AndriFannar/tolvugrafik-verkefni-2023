@@ -10,7 +10,7 @@
 
       varying vec3 N, L, E;
 
-      // Blinn-Fong
+      // Blinn-Phong
       uniform highp vec4 ambientProduct, diffuseProduct, specularProduct;
       uniform highp float shininess;
       uniform highp float blinnPhong;
@@ -31,6 +31,7 @@
           E = -normalize(pos);
           N = normalize( normalMatrix*vNormal.xyz);
 
+          // Athuga hvort nota eigi Blonn-Phong
           if(blinnPhong > 0.5)
           {
             vec3 H = normalize( L + E );
@@ -65,21 +66,27 @@
 
       void main()
       {
+          // Ef Blinn-Phong er notað á liturinn að fara beint í gegn, þar sem hnútalitarinn sér þá um að reikna endurskinið.,
           if(blinnPhong > 0.5)
           {
             gl_FragColor = blinnColour;
           }
           else
           {
+            // Ef það á ekki að nota Blinn-Phong þá reiknar bútalitarinn endurskinið.
             vec4 fColour;
 
-            vec3 H = normalize( normalize(L) + normalize(E) );
+            // Reiknum vigurinn r í stað H.
+            //vec3 H = normalize( normalize(L) + normalize(E) );
+            vec3 R = 2.0 * max(dot(L, N), 0.0) * N - L;
             vec4 ambient = ambientProduct;
 
             float Kd = max( dot(normalize(L), normalize(N)), 0.0 );
             vec4  diffuse = Kd*diffuseProduct;
 
-            float Ks = pow( max(dot(normalize(N), H), 0.0), shininess );
+            // Notum vigurinn r og sjónvigurinn E til að reikna depilendurskin.
+            float Ks = pow( max(dot(normalize(R), normalize(E)), 0.0), (shininess / 4.0) );
+            //float Ks = pow( max(dot(normalize(N), H), 0.0), shininess );
             vec4  specular = Ks * specularProduct;
 
             if( dot(normalize(L), normalize(N)) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
