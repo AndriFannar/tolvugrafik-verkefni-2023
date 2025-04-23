@@ -31,5 +31,5 @@ Heimadæmi & verkefni fyrir áfangann TÖL105M Tölvugrafík í Háskóla Íslan
  ## Verkefni:
  * Verkefni 1
    * Frogger
- * verkefni 2
+ * Verkefni 2
    * Fiskabúr
